@@ -161,7 +161,7 @@ button.ghost:hover{border-color:var(--color-border-tertiary)}
 <!-- API key banner — shown when key is missing -->
 <div class="api-banner" id="api-banner">
   <i class="ti ti-key" aria-hidden="true"></i>
-  <span>No API key set. Open this file in a text editor and replace <code>YOUR_API_KEY_HERE</code> with your key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</span>
+  <span>No API key set. Open this file in a text editor and replace <code>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</code> with your key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</span>
   <div class="sp"></div>
   <button class="sm" onclick="document.getElementById('api-banner').classList.add('hidden')">Dismiss</button>
 </div>
@@ -282,12 +282,12 @@ button.ghost:hover{border-color:var(--color-border-tertiary)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 // ── API KEY ──────────────────────────────────────────────────
-// Replace YOUR_API_KEY_HERE with your key from console.anthropic.com
+// Replace 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 with your key from console.anthropic.com
 // OR enter it in the Settings tab — it will be saved in localStorage.
-const HARDCODED_KEY = 'YOUR_API_KEY_HERE';
+const HARDCODED_KEY = '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';
 
 function getApiKey(){
-  return localStorage.getItem('pmp-api-key') || (HARDCODED_KEY !== 'YOUR_API_KEY_HERE' ? HARDCODED_KEY : '');
+  return localStorage.getItem('pmp-api-key') || (HARDCODED_KEY !== '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' ? HARDCODED_KEY : '');
 }
 
 if(typeof pdfjsLib!=='undefined') pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -363,10 +363,19 @@ function sw(n){
   if(n==='settings')loadSettings();
 }
 
+const DESCRIPTORS=/\b(extra\s+)?(large|small|medium|big|tiny|whole|fresh|frozen|dried|canned|cooked|raw|ripe|ripe|boneless|skinless|lean|ground|sliced|diced|chopped|minced|grated|shredded|peeled|crushed|halved|quartered|packed|heaping|level|rounded|flat|thin|thick|baby|young|old|sweet|hot|mild|spicy|sour|salted|unsalted|softened|melted|room\s+temperature|cold|warm|hot)\b/gi;
+function normIngredient(name){return name.toLowerCase().replace(DESCRIPTORS,'').replace(/\s+/g,' ').trim();}
 function mr(r){
   if(!r.ingredients?.length)return{pct:0,missing:[],have:[]};
   const miss=[],have=[];
-  r.ingredients.forEach(ri=>{const f=S.pantry.find(p=>p.name.toLowerCase()===ri.name.toLowerCase());(f?have:miss).push(ri)});
+  r.ingredients.forEach(ri=>{
+    const normRi=normIngredient(ri.name);
+    const f=S.pantry.find(p=>{
+      const normP=normIngredient(p.name);
+      return normP===normRi||normP.includes(normRi)||normRi.includes(normP);
+    });
+    (f?have:miss).push(ri);
+  });
   return{pct:Math.round(have.length/r.ingredients.length*100),missing:miss,have};
 }
 
@@ -664,7 +673,7 @@ function loadSettings(){
   const input=document.getElementById('api-key-input');
   if(input) input.value=stored;
   const status=document.getElementById('api-key-status');
-  if(status) status.textContent=stored?'Key saved in browser storage.':HARDCODED_KEY!=='YOUR_API_KEY_HERE'?'Using hardcoded key from file.':'No key set.';
+  if(status) status.textContent=stored?'Key saved in browser storage.':HARDCODED_KEY!=='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'?'Using hardcoded key from file.':'No key set.';
   if(getApiKey()) document.getElementById('api-banner').classList.add('hidden');
 }
 function saveApiKey(){
