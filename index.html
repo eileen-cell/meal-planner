@@ -504,7 +504,7 @@ function renderPantry(){
     if(ingredients.length)html+='<div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:5px;margin-top:10px">Ingredients</div>';
   }
   if(ingredients.length){
-    html+=ingredients.map(({g,i})=>`<div class="ii"><span style="flex:1;font-size:13px">${g.name}</span><span style="font-size:12px;color:var(--color-text-secondary)">${g.amount} ${g.unit}</span><button class="sm ghost" onclick="oai(${i})"><i class="ti ti-edit" aria-hidden="true"></i></button><button class="sm ghost danger" onclick="delPantry(${i})"><i class="ti ti-trash" aria-hidden="true"></i></button></div>`).join('');
+    html+=ingredients.map(({g,i})=>`<div class="ii"><span style="flex:1;font-size:13px">${g.name}</span>${(g.amount||g.unit)?`<span style="font-size:12px;color:var(--color-text-secondary)">${[g.amount,g.unit].filter(Boolean).join(' ')}</span>`:''}<button class="sm ghost" onclick="oai(${i})"><i class="ti ti-edit" aria-hidden="true"></i></button><button class="sm ghost danger" onclick="delPantry(${i})"><i class="ti ti-trash" aria-hidden="true"></i></button></div>`).join('');
   }
   el.innerHTML=html;
   updateStats();
@@ -547,7 +547,7 @@ async function parseBulkAI(){
   var st=document.getElementById('bulk-status');
   st.innerHTML='<div class="ail"><div class="dpulse"><span></span><span></span><span></span></div> Parsing ingredients\u2026</div>';
   try{
-    var sys='Parse a list of ingredients from natural language. Return ONLY a valid JSON array, no markdown, no extra text. Each item must have: {"name":"string","amount":"string","unit":"string"}. Normalise units to: g, kg, ml, l, tbsp, tsp, cup, oz, lb, pcs. If no unit is clear use "pcs". Strip size words (large, small, fresh, whole etc) from the name. Examples: "7 onions" -> {"name":"onion","amount":"7","unit":"pcs"}, "500g pasta" -> {"name":"pasta","amount":"500","unit":"g"}, "2 lbs chicken breast" -> {"name":"chicken breast","amount":"2","unit":"lb"}, "3 cloves garlic" -> {"name":"garlic","amount":"3","unit":"cloves"}.';
+    var sys='Parse a list of ingredients from natural language. Return ONLY a valid JSON array, no markdown, no extra text. Each item: {"name":"string","amount":"string","unit":"string"}. Normalise units to: g, kg, ml, l, tbsp, tsp, cup, oz, lb. Leave amount and unit as empty string "" if not specified. Strip size words (large, small, fresh, whole etc) from the name. Examples: "7 onions" -> {"name":"onion","amount":"7","unit":""}, "500g pasta" -> {"name":"pasta","amount":"500","unit":"g"}, "2 lbs chicken breast" -> {"name":"chicken breast","amount":"2","unit":"lb"}, "3 cloves garlic" -> {"name":"garlic","amount":"3","unit":"cloves"}, "olive oil" -> {"name":"olive oil","amount":"","unit":""}.';
     var text=await callAI([{role:'user',content:'Parse these ingredients:\n'+raw}],sys);
     var m=text.match(/\[[\s\S]*\]/);
     if(!m)throw new Error('Could not parse response — try again');
@@ -555,7 +555,7 @@ async function parseBulkAI(){
     if(!items.length)throw new Error('No ingredients found');
     var added=0;
     items.forEach(function(item){
-      if(item.name){S.pantry.push({name:item.name.trim(),amount:String(item.amount||''),unit:String(item.unit||'pcs')});added++;}
+      if(item.name){S.pantry.push({name:item.name.trim(),amount:String(item.amount||''),unit:String(item.unit||'')});added++;}
     });
     save();renderPantry();hideOverlay();
     var flash=document.createElement('div');
