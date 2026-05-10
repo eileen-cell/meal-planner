@@ -313,7 +313,7 @@ function save(){try{localStorage.setItem('pmp-v3',JSON.stringify(S))}catch(e){}u
 async function callAI(messages, system) {
   const key = getApiKey();
   if (!key) throw new Error('No API key set — go to the Settings tab.');
-  const body = { model: 'claude-sonnet-4-20250514', max_tokens: 1200, messages, apiKey: key };
+  const body = { model: 'claude-sonnet-4-6', max_tokens: 1200, messages, apiKey: key };
   if (system) body.system = system;
   const res = await fetch('https://green-night-5d24.eherbert898.workers.dev/', {
     method: 'POST',
