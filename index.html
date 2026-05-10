@@ -161,7 +161,7 @@ button.ghost:hover{border-color:var(--color-border-tertiary)}
 <!-- API key banner — shown when key is missing -->
 <div class="api-banner" id="api-banner">
   <i class="ti ti-key" aria-hidden="true"></i>
-  <span>No API key set. Open this file in a text editor and replace <code>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</code> with your key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</span>
+  <span>No API key set. Open this file in a text editor and replace <code>YOUR_API_KEY_HERE</code> with your key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</span>
   <div class="sp"></div>
   <button class="sm" onclick="document.getElementById('api-banner').classList.add('hidden')">Dismiss</button>
 </div>
@@ -178,7 +178,7 @@ button.ghost:hover{border-color:var(--color-border-tertiary)}
 
   <!-- PANTRY -->
   <div id="tab-pantry" class="panel active">
-    <div class="fr"><div><div style="font-size:16px;font-weight:500">Your pantry</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Track what you have on hand</div></div><div class="sp"></div><button class="pri sm" onclick="oai()"><i class="ti ti-plus" aria-hidden="true"></i> Add ingredient</button></div>
+    <div class="fr wrap"><div><div style="font-size:16px;font-weight:500">Your pantry</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Track what you have on hand</div></div><div class="sp"></div><button class="sm" onclick="openBulkAdd()" title="Add multiple ingredients"><i class="ti ti-list" aria-hidden="true"></i> Bulk add</button><button class="sm" id="mic-btn" onclick="startVoice()" title="Speak ingredients"><i class="ti ti-microphone" aria-hidden="true"></i> Voice</button><button class="pri sm" onclick="oai()"><i class="ti ti-plus" aria-hidden="true"></i> Add</button></div>
     <div class="g3"><div class="sc"><div class="sv" id="si1">0</div><div class="sl">ingredients</div></div><div class="sc"><div class="sv" id="si2">0</div><div class="sl">fully covered</div></div><div class="sc"><div class="sv" id="si3">0</div><div class="sl">nearly ready</div></div></div>
     <div id="pantry-list"><div class="es"><i class="ti ti-basket" aria-hidden="true"></i>No ingredients yet. Add what you have!</div></div>
   </div>
@@ -282,12 +282,12 @@ button.ghost:hover{border-color:var(--color-border-tertiary)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 // ── API KEY ──────────────────────────────────────────────────
-// Replace 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 with your key from console.anthropic.com
+// Replace YOUR_API_KEY_HERE with your key from console.anthropic.com
 // OR enter it in the Settings tab — it will be saved in localStorage.
-const HARDCODED_KEY = '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';
+const HARDCODED_KEY = 'YOUR_API_KEY_HERE';
 
 function getApiKey(){
-  return localStorage.getItem('pmp-api-key') || (HARDCODED_KEY !== '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' ? HARDCODED_KEY : '');
+  return localStorage.getItem('pmp-api-key') || (HARDCODED_KEY !== 'YOUR_API_KEY_HERE' ? HARDCODED_KEY : '');
 }
 
 if(typeof pdfjsLib!=='undefined') pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -403,6 +403,98 @@ function renderPantry(){
   updateStats();
 }
 function delPantry(i){S.pantry.splice(i,1);save();renderPantry()}
+
+// ── BULK ADD ─────────────────────────────────────────────────
+function openBulkAdd(prefill){
+  if(prefill===undefined)prefill='';
+  showOverlay('<div class="mt"><i class="ti ti-list" aria-hidden="true"></i> Bulk add ingredients</div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px">'
+    +'<div class="hbox">Type or speak multiple ingredients, one per line or comma-separated.<br>'
+    +'Examples: <em>7 onions, 2 lbs chicken breast, 500g pasta</em></div>'
+    +'<div style="position:relative">'
+    +'<textarea id="bulk-txt" style="min-height:130px;padding-right:44px" placeholder="7 onions&#10;2 lbs chicken breast&#10;500g pasta&#10;3 cloves garlic">'+prefill+'</textarea>'
+    +'<button id="bulk-mic-btn" onclick="startVoiceBulk()" title="Speak ingredients" style="position:absolute;right:6px;top:6px;padding:5px 8px;border-radius:6px">'
+    +'<i class="ti ti-microphone" aria-hidden="true"></i></button>'
+    +'</div>'
+    +'<div id="bulk-status"></div>'
+    +'<div class="fr" style="justify-content:flex-end">'
+    +'<button onclick="hideOverlay()">Cancel</button>'
+    +'<button class="pri" onclick="parseBulkAI()"><i class="ti ti-wand" aria-hidden="true"></i> Add to pantry \u2197</button>'
+    +'</div></div>');
+  setTimeout(function(){var el=document.getElementById('bulk-txt');if(el)el.focus();},50);
+}
+
+async function parseBulkAI(){
+  var raw=document.getElementById('bulk-txt').value.trim();
+  if(!raw)return;
+  var st=document.getElementById('bulk-status');
+  st.innerHTML='<div class="ail"><div class="dpulse"><span></span><span></span><span></span></div> Parsing ingredients\u2026</div>';
+  try{
+    var sys='Parse a list of ingredients from natural language. Return ONLY a valid JSON array, no markdown, no extra text. Each item must have: {"name":"string","amount":"string","unit":"string"}. Normalise units to: g, kg, ml, l, tbsp, tsp, cup, oz, lb, pcs. If no unit is clear use "pcs". Strip size words (large, small, fresh, whole etc) from the name. Examples: "7 onions" -> {"name":"onion","amount":"7","unit":"pcs"}, "500g pasta" -> {"name":"pasta","amount":"500","unit":"g"}, "2 lbs chicken breast" -> {"name":"chicken breast","amount":"2","unit":"lb"}, "3 cloves garlic" -> {"name":"garlic","amount":"3","unit":"cloves"}.';
+    var text=await callAI([{role:'user',content:'Parse these ingredients:\n'+raw}],sys);
+    var m=text.match(/\[[\s\S]*\]/);
+    if(!m)throw new Error('Could not parse response — try again');
+    var items=JSON.parse(m[0]);
+    if(!items.length)throw new Error('No ingredients found');
+    var added=0;
+    items.forEach(function(item){
+      if(item.name){S.pantry.push({name:item.name.trim(),amount:String(item.amount||''),unit:String(item.unit||'pcs')});added++;}
+    });
+    save();renderPantry();hideOverlay();
+    var flash=document.createElement('div');
+    flash.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#EAF3DE;color:#3B6D11;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;border:0.5px solid #3B6D11;white-space:nowrap';
+    flash.textContent='\u2713 Added '+added+' ingredient'+(added!==1?'s':'')+' to pantry';
+    document.body.appendChild(flash);
+    setTimeout(function(){flash.remove();},2500);
+  }catch(e){
+    st.innerHTML='<div class="ist err"><i class="ti ti-alert-triangle" aria-hidden="true"></i> '+e.message+'</div>';
+  }
+}
+
+// ── VOICE INPUT ───────────────────────────────────────────────
+var _recognition=null;
+
+function startVoice(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Speech recognition is not supported in this browser. Try Chrome on desktop or Safari on iOS.');return;}
+  openBulkAdd('');
+  setTimeout(function(){startVoiceBulk();},350);
+}
+
+function startVoiceBulk(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Speech recognition is not supported in this browser. Try Chrome on desktop or Safari on iOS.');return;}
+  if(_recognition){try{_recognition.stop();}catch(e){}}
+  _recognition=new SR();
+  _recognition.continuous=false;
+  _recognition.interimResults=true;
+  _recognition.lang='en-US';
+  var micBtn=document.getElementById('bulk-mic-btn');
+  var ta=document.getElementById('bulk-txt');
+  var existing=ta?ta.value.trim():'';
+  if(micBtn){micBtn.style.background='#FCEBEB';micBtn.style.color='#A32D2D';}
+  _recognition.onresult=function(e){
+    var final='',interim='';
+    for(var i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal)final+=e.results[i][0].transcript;
+      else interim+=e.results[i][0].transcript;
+    }
+    if(ta){
+      var prefix=existing?(existing+'\n'):'';
+      ta.value=prefix+(final||interim);
+    }
+  };
+  _recognition.onerror=function(e){
+    if(micBtn){micBtn.style.background='';micBtn.style.color='';}
+    if(e.error!=='aborted')alert('Microphone error: '+e.error+'. Make sure microphone permission is granted.');
+  };
+  _recognition.onend=function(){
+    if(micBtn){micBtn.style.background='';micBtn.style.color='';}
+    _recognition=null;
+  };
+  try{_recognition.start();}catch(e){alert('Could not start microphone: '+e.message);}
+}
+
 function updateStats(){
   const a=S.recipes.map(r=>mr(r));
   document.getElementById('si1').textContent=S.pantry.length;
@@ -673,7 +765,7 @@ function loadSettings(){
   const input=document.getElementById('api-key-input');
   if(input) input.value=stored;
   const status=document.getElementById('api-key-status');
-  if(status) status.textContent=stored?'Key saved in browser storage.':HARDCODED_KEY!=='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'?'Using hardcoded key from file.':'No key set.';
+  if(status) status.textContent=stored?'Key saved in browser storage.':HARDCODED_KEY!=='YOUR_API_KEY_HERE'?'Using hardcoded key from file.':'No key set.';
   if(getApiKey()) document.getElementById('api-banner').classList.add('hidden');
 }
 function saveApiKey(){
