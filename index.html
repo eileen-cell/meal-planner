@@ -1,4 +1,4 @@
-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<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pantry Meal Planner</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
@@ -161,7 +161,7 @@ button.ghost:hover{border-color:var(--color-border-tertiary)}
 <!-- API key banner — shown when key is missing -->
 <div class="api-banner" id="api-banner">
   <i class="ti ti-key" aria-hidden="true"></i>
-  <span>No API key set. Open this file in a text editor and replace <code>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</code> with your key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</span>
+  <span>No API key set. Open this file in a text editor and replace <code>YOUR_API_KEY_HERE</code> with your key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</span>
   <div class="sp"></div>
   <button class="sm" onclick="document.getElementById('api-banner').classList.add('hidden')">Dismiss</button>
 </div>
@@ -282,12 +282,12 @@ button.ghost:hover{border-color:var(--color-border-tertiary)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 // ── API KEY ──────────────────────────────────────────────────
-// Replace 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 with your key from console.anthropic.com
+// Replace YOUR_API_KEY_HERE with your key from console.anthropic.com
 // OR enter it in the Settings tab — it will be saved in localStorage.
-const HARDCODED_KEY = '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';
+const HARDCODED_KEY = 'YOUR_API_KEY_HERE';
 
 function getApiKey(){
-  return localStorage.getItem('pmp-api-key') || (HARDCODED_KEY !== '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' ? HARDCODED_KEY : '');
+  return localStorage.getItem('pmp-api-key') || (HARDCODED_KEY !== 'YOUR_API_KEY_HERE' ? HARDCODED_KEY : '');
 }
 
 if(typeof pdfjsLib!=='undefined') pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -498,7 +498,7 @@ function delRecipe(i){S.recipes.splice(i,1);save();hideOverlay();pFD();rTFB();rR
 function addMiss(i){mr(S.recipes[i]).missing.forEach(m=>{if(!S.shopping.find(s=>s.name.toLowerCase()===m.name.toLowerCase()))S.shopping.push({...m,checked:false,recipe:S.recipes[i].name})});save()}
 
 // ── IMPORT ────────────────────────────────────────────────────
-function showImport(){
+function showImport(){activeImportTab='txt';
   showOverlay(`<div class="mt"><i class="ti ti-download" aria-hidden="true"></i> Import recipe</div>
     <div class="itabs"><button class="itab on" id="it-txt" onclick="sIT('txt')"><i class="ti ti-clipboard" aria-hidden="true"></i> Paste text</button><button class="itab" id="it-pdf" onclick="sIT('pdf')"><i class="ti ti-file" aria-hidden="true"></i> Upload PDF</button><button class="itab" id="it-url" onclick="sIT('url')"><i class="ti ti-link" aria-hidden="true"></i> By URL</button></div>
     <div id="ip-txt"><div class="hbox"><b>Best method:</b> open the recipe page, select all (Ctrl+A / Cmd+A), copy, and paste below.</div><label class="fl">Paste recipe text</label><textarea id="imp-txt" style="min-height:110px" placeholder="Paste the full recipe text here…"></textarea></div>
@@ -507,11 +507,12 @@ function showImport(){
     <div id="imp-st"></div>
     <div class="fr" style="justify-content:flex-end;margin-top:11px"><button onclick="hideOverlay()">Cancel</button><button class="pri" onclick="runImport()"><i class="ti ti-wand" aria-hidden="true"></i> Import ↗</button></div>`);
 }
-function sIT(t){['txt','pdf','url'].forEach(x=>{document.getElementById('it-'+x).classList.toggle('on',x===t);document.getElementById('ip-'+x).style.display=x===t?'block':'none'})}
+let activeImportTab="txt";
+function sIT(t){activeImportTab=t;['txt','pdf','url'].forEach(x=>{document.getElementById('it-'+x).classList.toggle('on',x===t);document.getElementById('ip-'+x).style.display=x===t?'block':'none'})}
 
 async function runImport(){
   const st=document.getElementById('imp-st');
-  const at=['txt','pdf','url'].find(t=>document.getElementById('it-'+t).classList.contains('on'));
+  const at=activeImportTab;
   let userText='',sourceUrl='';
   try{
     if(at==='txt'){
@@ -590,8 +591,9 @@ function renderPN(){
   renderGB();
 }
 async function aiPlan(){
-  if(!S.recipes.length)return;
   const re=document.getElementById('ai-pr');
+  if(!S.recipes.length){re.innerHTML='<div class="ist err">Add some recipes first, then try AI plan week.</div>';setTimeout(()=>{re.innerHTML=''},4000);return}
+  if(!getApiKey()){re.innerHTML='<div class="ist err">No API key set — go to the Settings tab and add your key.</div>';setTimeout(()=>{re.innerHTML=''},5000);return}
   re.innerHTML='<div class="ail"><div class="dpulse"><span></span><span></span><span></span></div> Planning your week…</div>';
   const pt=S.pantry.map(p=>`${p.name} (${p.amount} ${p.unit})`).join(', ')||'empty pantry';
   const gl=S.goals?.daily||{};
@@ -658,7 +660,7 @@ function loadSettings(){
   const input=document.getElementById('api-key-input');
   if(input) input.value=stored;
   const status=document.getElementById('api-key-status');
-  if(status) status.textContent=stored?'Key saved in browser storage.':HARDCODED_KEY!=='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'?'Using hardcoded key from file.':'No key set.';
+  if(status) status.textContent=stored?'Key saved in browser storage.':HARDCODED_KEY!=='YOUR_API_KEY_HERE'?'Using hardcoded key from file.':'No key set.';
   if(getApiKey()) document.getElementById('api-banner').classList.add('hidden');
 }
 function saveApiKey(){
