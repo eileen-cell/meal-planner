@@ -391,6 +391,7 @@ const DESCRIPTORS=/\b(extra\s+)?(large|small|medium|big|tiny|whole|fresh|frozen|
 const PREP_VERBS=/\b(cut|slice|sliced|dice|diced|chop|chopped|mince|minced|grate|grated|shred|shredded|peel|peeled|trim|trimmed|crush|crushed|pound|pounded|score|scored|debone|deboned|butterflied|julienned|julienne|spiralized|zested|squeezed|torn|separated|divided|thawed|drained|rinsed|patted dry|roughly|finely|thinly|crosswise|lengthwise|diagonally|into \d|about \d|\d-inch|\d\/\d-inch|into pieces|into strips|into chunks|into rings|into wedges|into florets|as needed|to taste|optional)\b.*/i;
 
 function stripPrepInstructions(name){
+  if(!name)return name;
   // Remove anything after the first comma
   let s=name.split(',')[0];
   // Remove parenthetical content (including unclosed parens)
@@ -399,6 +400,10 @@ function stripPrepInstructions(name){
   s=s.replace(PREP_VERBS,'');
   // Clean up stray punctuation and whitespace
   s=s.replace(/[,;:]+$/,'').trim();
+  // Safety: if stripping wiped the whole name, fall back to text before first comma
+  if(!s)s=name.split(',')[0].trim();
+  // Last resort: use original
+  if(!s)s=name.trim();
   return s;
 }
 
@@ -1046,9 +1051,11 @@ function genShop(){
       // Skip shopping for items covered by a prepared pantry item
       if(match.preparedBy)return;
       match.missing.forEach(m=>{
-        const cleanName=stripPrepInstructions(m.name);
-        const key=cleanName.toLowerCase();
+        const cleanName=stripPrepInstructions(m.name)||m.name;
+        const key=cleanName.toLowerCase().trim();
+        if(!key)return; // skip if name is somehow empty
         if(!all[key])all[key]={name:cleanName,amount:m.amount,unit:m.unit,recipes:[],checked:false};
+        else if(!all[key].amount&&m.amount)all[key].amount=m.amount; // merge amount if missing
         all[key].recipes.push(n);
       });
     });
