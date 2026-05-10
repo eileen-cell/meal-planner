@@ -453,6 +453,11 @@ async function parseBulkAI(){
 
 // ── VOICE INPUT ───────────────────────────────────────────────
 var _recognition=null;
+var _silenceTimer=null;
+var _voiceActive=false;
+var _accumulatedLines=[];
+var _interimText='';
+var SILENCE_TIMEOUT=10000;
 
 function startVoice(){
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -461,38 +466,85 @@ function startVoice(){
   setTimeout(function(){startVoiceBulk();},350);
 }
 
+function setMicUI(active){
+  var micBtn=document.getElementById('bulk-mic-btn');
+  if(!micBtn)return;
+  if(active){
+    micBtn.style.background='#FCEBEB';
+    micBtn.style.color='#A32D2D';
+    micBtn.title='Listening\u2026 tap to stop';
+  } else {
+    micBtn.style.background='';
+    micBtn.style.color='';
+    micBtn.title='Speak ingredients';
+  }
+}
+
+function updateTextarea(){
+  var ta=document.getElementById('bulk-txt');
+  if(!ta)return;
+  var lines=_accumulatedLines.slice();
+  if(_interimText)lines.push(_interimText);
+  ta.value=lines.join('\n');
+  ta.scrollTop=ta.scrollHeight;
+}
+
+function resetSilenceTimer(){
+  if(_silenceTimer)clearTimeout(_silenceTimer);
+  _silenceTimer=setTimeout(function(){stopVoiceBulk();},SILENCE_TIMEOUT);
+}
+
+function stopVoiceBulk(){
+  _voiceActive=false;
+  if(_silenceTimer){clearTimeout(_silenceTimer);_silenceTimer=null;}
+  if(_recognition){try{_recognition.stop();}catch(e){}_recognition=null;}
+  if(_interimText.trim()){_accumulatedLines.push(_interimText.trim());_interimText='';}
+  updateTextarea();
+  setMicUI(false);
+}
+
 function startVoiceBulk(){
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){alert('Speech recognition is not supported in this browser. Try Chrome on desktop or Safari on iOS.');return;}
-  if(_recognition){try{_recognition.stop();}catch(e){}}
-  _recognition=new SR();
-  _recognition.continuous=false;
-  _recognition.interimResults=true;
-  _recognition.lang='en-US';
-  var micBtn=document.getElementById('bulk-mic-btn');
+  if(_voiceActive){stopVoiceBulk();return;}
   var ta=document.getElementById('bulk-txt');
   var existing=ta?ta.value.trim():'';
-  if(micBtn){micBtn.style.background='#FCEBEB';micBtn.style.color='#A32D2D';}
-  _recognition.onresult=function(e){
-    var final='',interim='';
-    for(var i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal)final+=e.results[i][0].transcript;
-      else interim+=e.results[i][0].transcript;
-    }
-    if(ta){
-      var prefix=existing?(existing+'\n'):'';
-      ta.value=prefix+(final||interim);
-    }
-  };
-  _recognition.onerror=function(e){
-    if(micBtn){micBtn.style.background='';micBtn.style.color='';}
-    if(e.error!=='aborted')alert('Microphone error: '+e.error+'. Make sure microphone permission is granted.');
-  };
-  _recognition.onend=function(){
-    if(micBtn){micBtn.style.background='';micBtn.style.color='';}
-    _recognition=null;
-  };
-  try{_recognition.start();}catch(e){alert('Could not start microphone: '+e.message);}
+  _accumulatedLines=existing?existing.split('\n').filter(Boolean):[];
+  _interimText='';
+  _voiceActive=true;
+  setMicUI(true);
+  resetSilenceTimer();
+  function spawnRecognition(){
+    if(!_voiceActive)return;
+    var r=new SR();
+    r.continuous=false;
+    r.interimResults=true;
+    r.lang='en-US';
+    _recognition=r;
+    r.onresult=function(e){
+      resetSilenceTimer();
+      var finalChunk='',interimChunk='';
+      for(var i=e.resultIndex;i<e.results.length;i++){
+        if(e.results[i].isFinal)finalChunk+=e.results[i][0].transcript;
+        else interimChunk+=e.results[i][0].transcript;
+      }
+      if(finalChunk){_accumulatedLines.push(finalChunk.trim());_interimText='';}
+      else{_interimText=interimChunk;}
+      updateTextarea();
+    };
+    r.onerror=function(e){
+      if(e.error==='aborted'||e.error==='no-speech')return;
+      stopVoiceBulk();
+      alert('Microphone error: '+e.error+'. Make sure microphone permission is granted.');
+    };
+    r.onend=function(){
+      _recognition=null;
+      if(_voiceActive)setTimeout(spawnRecognition,100);
+      else setMicUI(false);
+    };
+    try{r.start();}catch(e){stopVoiceBulk();alert('Could not start microphone: '+e.message);}
+  }
+  spawnRecognition();
 }
 
 function updateStats(){
