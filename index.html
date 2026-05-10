@@ -178,7 +178,7 @@ button.ghost:hover{border-color:var(--color-border-tertiary)}
 
   <!-- PANTRY -->
   <div id="tab-pantry" class="panel active">
-    <div class="fr wrap"><div><div style="font-size:16px;font-weight:500">Your pantry</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Track what you have on hand</div></div><div class="sp"></div><button class="sm" onclick="openBulkAdd()" title="Add multiple ingredients"><i class="ti ti-list" aria-hidden="true"></i> Bulk add</button><button class="sm" id="mic-btn" onclick="startVoice()" title="Speak ingredients"><i class="ti ti-microphone" aria-hidden="true"></i> Voice</button><button class="pri sm" onclick="oai()"><i class="ti ti-plus" aria-hidden="true"></i> Add</button></div>
+    <div class="fr wrap"><div><div style="font-size:16px;font-weight:500">Your pantry</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Track what you have on hand</div></div><div class="sp"></div><button class="sm" onclick="openBulkAdd()" title="Add multiple ingredients"><i class="ti ti-list" aria-hidden="true"></i> Bulk add</button><button class="sm" onclick="openAddPrepared()" title="Add frozen / make-ahead / leftover item"><i class="ti ti-freeze-row" aria-hidden="true"></i> Add prepared</button><button class="sm" id="mic-btn" onclick="startVoice()" title="Speak ingredients"><i class="ti ti-microphone" aria-hidden="true"></i> Voice</button><button class="pri sm" onclick="oai()"><i class="ti ti-plus" aria-hidden="true"></i> Add</button></div>
     <div class="g3"><div class="sc"><div class="sv" id="si1">0</div><div class="sl">ingredients</div></div><div class="sc"><div class="sv" id="si2">0</div><div class="sl">fully covered</div></div><div class="sc"><div class="sv" id="si3">0</div><div class="sl">nearly ready</div></div></div>
     <div id="pantry-list"><div class="es"><i class="ti ti-basket" aria-hidden="true"></i>No ingredients yet. Add what you have!</div></div>
   </div>
@@ -378,12 +378,19 @@ function sw(n){
 
 const DESCRIPTORS=/\b(extra\s+)?(large|small|medium|big|tiny|whole|fresh|frozen|dried|canned|cooked|raw|ripe|ripe|boneless|skinless|lean|ground|sliced|diced|chopped|minced|grated|shredded|peeled|crushed|halved|quartered|packed|heaping|level|rounded|flat|thin|thick|baby|young|old|sweet|hot|mild|spicy|sour|salted|unsalted|softened|melted|room\s+temperature|cold|warm|hot)\b/gi;
 function normIngredient(name){return name.toLowerCase().replace(DESCRIPTORS,'').replace(/\s+/g,' ').trim();}
+// ── MATCH RECIPE ─────────────────────────────────────────────
+// A prepared pantry item (type==='prepared') satisfies its source recipe entirely
+// if it has servings remaining. Regular ingredients match by name normalization.
 function mr(r){
   if(!r.ingredients?.length)return{pct:0,missing:[],have:[]};
+  // Check if a prepared item covers this whole recipe
+  const prepItem=S.pantry.find(p=>p.type==='prepared'&&p.recipeName===r.name&&(parseInt(p.servingsLeft)||0)>0);
+  if(prepItem)return{pct:100,missing:[],have:r.ingredients.slice(),preparedBy:prepItem};
   const miss=[],have=[];
   r.ingredients.forEach(ri=>{
     const normRi=normIngredient(ri.name);
     const f=S.pantry.find(p=>{
+      if(p.type==='prepared')return false; // prepared items don't match individual ingredients
       const normP=normIngredient(p.name);
       return normP===normRi||normP.includes(normRi)||normRi.includes(normP);
     });
@@ -395,6 +402,7 @@ function mr(r){
 // ── PANTRY ───────────────────────────────────────────────────
 function oai(e=null){
   const g=e!==null?S.pantry[e]:{name:'',amount:'',unit:'g'};
+  if(g.type==='prepared'){openAddPrepared(e);return;}
   showOverlay(`<div class="mt">${e!==null?'Edit':'Add'} ingredient</div>
     <div style="display:flex;flex-direction:column;gap:10px">
       <div><label class="fl">Name</label><input type="text" id="in" value="${g.name}" placeholder="Chicken breast"></div>
@@ -406,15 +414,111 @@ function oai(e=null){
 function svi(e){
   const n=document.getElementById('in').value.trim(),a=document.getElementById('ia').value.trim(),u=document.getElementById('iu').value.trim();
   if(!n)return;
-  if(e!==null)S.pantry[e]={name:n,amount:a,unit:u};else S.pantry.push({name:n,amount:a,unit:u});
+  if(e!==null)S.pantry[e]={...S.pantry[e],name:n,amount:a,unit:u};else S.pantry.push({name:n,amount:a,unit:u});
   save();hideOverlay();renderPantry();
 }
+
+// ── ADD PREPARED ITEM ────────────────────────────────────────
+function openAddPrepared(e=null){
+  const g=e!==null?S.pantry[e]:{recipeName:'',servingsLeft:'',prepType:'frozen',notes:''};
+  const recipeOpts=S.recipes.map(r=>`<option value="${r.name.replace(/"/g,'&quot;')}" ${g.recipeName===r.name?'selected':''}>${r.name}</option>`).join('');
+  const typeOpts=['frozen','make-ahead','leftover','other'].map(t=>`<option value="${t}" ${g.prepType===t?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('');
+  showOverlay(`<div class="mt"><i class="ti ti-stack" aria-hidden="true"></i> ${e!==null?'Edit':'Add'} prepared item</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="hbox">Add a batch of a recipe you've already cooked — frozen meals, make-ahead dishes, or leftovers. Each serving counts as having that full recipe available when meal planning.</div>
+      <div><label class="fl">Recipe</label>
+        <select id="prep-recipe">${recipeOpts.length?recipeOpts:'<option value="">-- Add recipes first --</option>'}</select></div>
+      <div class="g2">
+        <div><label class="fl">Servings available</label><input type="number" id="prep-servings" value="${g.servingsLeft||''}" min="1" placeholder="e.g. 4"></div>
+        <div><label class="fl">Type</label><select id="prep-type">${typeOpts}</select></div>
+      </div>
+      <div><label class="fl">Notes (optional)</label><input type="text" id="prep-notes" value="${g.notes||''}" placeholder="e.g. made on Sunday, use by Friday"></div>
+      <div class="fr" style="justify-content:flex-end"><button onclick="hideOverlay()">Cancel</button><button class="pri" onclick="savePrepared(${e})">${e!==null?'Save changes':'Add to pantry'}</button></div>
+    </div>`);
+}
+
+function savePrepared(e){
+  const rn=document.getElementById('prep-recipe').value;
+  const sv=document.getElementById('prep-servings').value;
+  const pt=document.getElementById('prep-type').value;
+  const notes=document.getElementById('prep-notes').value.trim();
+  if(!rn){alert('Select a recipe.');return;}
+  if(!sv||parseInt(sv)<1){alert('Enter at least 1 serving.');return;}
+  const obj={
+    type:'prepared',
+    name:rn+' ('+pt+')',
+    recipeName:rn,
+    servingsLeft:parseInt(sv),
+    servingsTotal:parseInt(sv),
+    prepType:pt,
+    notes,
+    amount:sv,
+    unit:'servings'
+  };
+  if(e!==null)S.pantry[e]=obj;else S.pantry.push(obj);
+  save();hideOverlay();renderPantry();updateStats();
+}
+
+// Decrement servings of a prepared item when used in plan, remove if 0
+function usePreparedServings(recipeName, count){
+  const idx=S.pantry.findIndex(p=>p.type==='prepared'&&p.recipeName===recipeName&&(parseInt(p.servingsLeft)||0)>0);
+  if(idx===-1)return;
+  S.pantry[idx].servingsLeft=Math.max(0,parseInt(S.pantry[idx].servingsLeft)-count);
+  S.pantry[idx].amount=String(S.pantry[idx].servingsLeft);
+  if(S.pantry[idx].servingsLeft===0){
+    // keep it but show as depleted rather than auto-deleting
+    S.pantry[idx].depleted=true;
+  }
+  save();
+}
+
 function renderPantry(){
   const el=document.getElementById('pantry-list');
   if(!S.pantry.length){el.innerHTML='<div class="es"><i class="ti ti-basket" aria-hidden="true"></i>No ingredients yet.</div>';return}
-  el.innerHTML=S.pantry.map((g,i)=>`<div class="ii"><span style="flex:1;font-size:13px">${g.name}</span><span style="font-size:12px;color:var(--color-text-secondary)">${g.amount} ${g.unit}</span><button class="sm ghost" onclick="oai(${i})"><i class="ti ti-edit" aria-hidden="true"></i></button><button class="sm ghost danger" onclick="delPantry(${i})"><i class="ti ti-trash" aria-hidden="true"></i></button></div>`).join('');
+  // Separate prepared items and regular ingredients
+  const prepared=S.pantry.map((g,i)=>({g,i})).filter(({g})=>g.type==='prepared');
+  const ingredients=S.pantry.map((g,i)=>({g,i})).filter(({g})=>g.type!=='prepared');
+  let html='';
+  if(prepared.length){
+    html+='<div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:5px;margin-top:2px">Prepared items</div>';
+    html+=prepared.map(({g,i})=>{
+      const left=parseInt(g.servingsLeft)||0;
+      const total=parseInt(g.servingsTotal)||left;
+      const pct=total>0?Math.round(left/total*100):0;
+      const depleted=left===0;
+      const typeTag=`<span class="badge ${g.prepType==='frozen'?'bb':g.prepType==='leftover'?'ba':'bt'}" style="font-size:10px">${g.prepType}</span>`;
+      return`<div class="ii" style="${depleted?'opacity:0.5':''}">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500">${g.recipeName}</div>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:3px">
+            ${typeTag}
+            <span style="font-size:11px;color:${depleted?'#A32D2D':'var(--color-text-secondary)'}">${depleted?'Depleted':left+' / '+total+' servings left'}</span>
+          </div>
+          ${g.notes?`<div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">${g.notes}</div>`:''}
+        </div>
+        ${!depleted?`<div style="display:flex;gap:4px"><button class="sm ghost" onclick="adjustServings(${i},-1)" title="Use one serving" style="padding:4px 8px"><i class="ti ti-minus" aria-hidden="true"></i></button><button class="sm ghost" onclick="adjustServings(${i},1)" title="Add a serving" style="padding:4px 8px"><i class="ti ti-plus" aria-hidden="true"></i></button></div>`:''}
+        <button class="sm ghost" onclick="openAddPrepared(${i})"><i class="ti ti-edit" aria-hidden="true"></i></button>
+        <button class="sm ghost danger" onclick="delPantry(${i})"><i class="ti ti-trash" aria-hidden="true"></i></button>
+      </div>`;
+    }).join('');
+    if(ingredients.length)html+='<div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:5px;margin-top:10px">Ingredients</div>';
+  }
+  if(ingredients.length){
+    html+=ingredients.map(({g,i})=>`<div class="ii"><span style="flex:1;font-size:13px">${g.name}</span><span style="font-size:12px;color:var(--color-text-secondary)">${g.amount} ${g.unit}</span><button class="sm ghost" onclick="oai(${i})"><i class="ti ti-edit" aria-hidden="true"></i></button><button class="sm ghost danger" onclick="delPantry(${i})"><i class="ti ti-trash" aria-hidden="true"></i></button></div>`).join('');
+  }
+  el.innerHTML=html;
   updateStats();
 }
+
+function adjustServings(i, delta){
+  const item=S.pantry[i];
+  if(!item||item.type!=='prepared')return;
+  item.servingsLeft=Math.max(0,(parseInt(item.servingsLeft)||0)+delta);
+  item.amount=String(item.servingsLeft);
+  item.depleted=item.servingsLeft===0;
+  save();renderPantry();updateStats();
+}
+
 function delPantry(i){S.pantry.splice(i,1);save();renderPantry()}
 
 // ── BULK ADD ─────────────────────────────────────────────────
@@ -562,7 +666,9 @@ function startVoiceBulk(){
 
 function updateStats(){
   const a=S.recipes.map(r=>mr(r));
-  document.getElementById('si1').textContent=S.pantry.length;
+  const ingCount=S.pantry.filter(p=>p.type!=='prepared').length;
+  const prepCount=S.pantry.filter(p=>p.type==='prepared'&&!p.depleted).length;
+  document.getElementById('si1').textContent=ingCount+(prepCount>0?' + '+prepCount+' prep':'');
   document.getElementById('si2').textContent=a.filter(x=>x.pct>=100).length;
   document.getElementById('si3').textContent=a.filter(x=>x.pct>=70&&x.pct<100).length;
 }
@@ -766,8 +872,14 @@ function rW(){
       const pcts=items.map(n=>{const rec=S.recipes.find(r=>r.name===n);return rec?mr(rec).pct:100;});
       const minPct=Math.min(...pcts);
       const col=minPct>=100?'#3B6D11':minPct>=70?'#BA7517':'#A32D2D';
-      const nameList=items.map(n=>`<div class="mln" style="font-size:9px;line-height:1.3">${n}</div>`).join('');
-      return`<div class="ms filled" onclick="oSP('${day}','${meal}')"><div class="mll">${meal}</div>${nameList}<div class="mlm" style="color:${col}">${items.length} item${items.length>1?'s':''} · ${minPct}%</div></div>`;
+      const nameList=items.map(n=>{
+        const rec=S.recipes.find(r=>r.name===n);
+        const m=rec?mr(rec):{pct:0,preparedBy:null};
+        const prepIcon=m.preparedBy?'<i class="ti ti-stack" style="font-size:9px;opacity:0.7" aria-hidden="true"></i> ':''
+        return`<div class="mln" style="font-size:9px;line-height:1.3">${prepIcon}${n}</div>`;
+      }).join('');
+      const hasPrep=items.some(n=>{const rec=S.recipes.find(r=>r.name===n);return rec&&mr(rec).preparedBy;});
+      return`<div class="ms filled" onclick="oSP('${day}','${meal}')"><div class="mll">${meal}</div>${nameList}<div class="mlm" style="color:${col}">${hasPrep?'<i class=\'ti ti-stack\' style=\'font-size:9px\' aria-hidden=\'true\'></i> ':''}${items.length} item${items.length>1?'s':''} · ${minPct}%</div></div>`;
     }
     return`<div class="ms" onclick="oSP('${day}','${meal}')"><div class="mll">${meal}</div><div style="font-size:9px;color:var(--color-text-secondary);margin-top:3px">+ Add</div></div>`;
   }).join('')}</div>`).join('');
@@ -783,11 +895,16 @@ function oSP(day,meal){
       +current.map((n,i)=>{
         const rec=S.recipes.find(r=>r.name===n);
         const m=rec?mr(rec):{pct:0};
+        const prep=m.preparedBy;
+        const prepLeft=prep?parseInt(prep.servingsLeft)||0:0;
+        const prepBadge=prep?`<span class="badge ${prep.prepType==='frozen'?'bb':prep.prepType==='leftover'?'ba':'bt'}" style="font-size:10px">${prep.prepType} (${prepLeft} left)</span>`:'';
         return`<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:4px">`
           +`<div style="flex:1"><div style="font-size:13px">${n}</div>`
-          +(rec&&rec.dishType?`<div style="font-size:11px;color:var(--color-text-secondary)">${rec.dishType}</div>`:'')
+          +(prep?'<div style="margin-top:2px">'+prepBadge+'</div>'
+            :rec&&rec.dishType?`<div style="font-size:11px;color:var(--color-text-secondary)">${rec.dishType}</div>`:'')
           +'</div>'
-          +`<span class="badge ${m.pct>=100?'bg':m.pct>=70?'ba':'br'}">${m.pct}%</span>`
+          +(prep?`<button class="sm" onclick="markPrepUsed('${n}');oSP('${k.split('-').slice(0,1)[0]}','${k.split('-').slice(1).join('-')}');" title="Use 1 serving" style="font-size:11px"><i class="ti ti-check" aria-hidden="true"></i> Use serving</button>`
+            :`<span class="badge ${m.pct>=100?'bg':m.pct>=70?'ba':'br'}">${m.pct}%</span>`)
           +`<button class="sm ghost danger" onclick="removePlanItem('${k}',${i})" style="padding:4px 7px"><i class="ti ti-x" aria-hidden="true"></i></button>`
           +'</div>';
       }).join('')
@@ -812,6 +929,12 @@ function oSP(day,meal){
     +'<div style="display:flex;flex-direction:column;gap:1px;max-height:360px;overflow-y:auto">'
     +rows+emptyMsg
     +'</div>');
+}
+
+function markPrepUsed(recipeName){
+  usePreparedServings(recipeName,1);
+  renderPantry();
+  updateStats();
 }
 
 function addPlanItem(k,name){
@@ -859,7 +982,10 @@ async function aiPlan(){
   if(!S.recipes.length){re.innerHTML='<div class="ist err">Add some recipes first, then try AI plan week.</div>';setTimeout(()=>{re.innerHTML=''},4000);return}
   if(!getApiKey()){re.innerHTML='<div class="ist err">No API key set — go to the Settings tab and add your key.</div>';setTimeout(()=>{re.innerHTML=''},5000);return}
   re.innerHTML='<div class="ail"><div class="dpulse"><span></span><span></span><span></span></div> Planning your week…</div>';
-  const pt=S.pantry.map(p=>`${p.name} (${p.amount} ${p.unit})`).join(', ')||'empty pantry';
+  const pt=[
+    ...S.pantry.filter(p=>p.type!=='prepared').map(p=>`${p.name} (${p.amount} ${p.unit})`),
+    ...S.pantry.filter(p=>p.type==='prepared'&&!p.depleted).map(p=>`${p.recipeName} [PREPARED, ${p.servingsLeft} servings of ${p.prepType}]`)
+  ].join(', ')||'empty pantry';
   const gl=S.goals?.daily||{};
   const goalStr=Object.entries(gl).filter(([k,v])=>v).map(([k,v])=>`${NUT_LABELS[k]}: ${v}${NUT_UNITS[k]}`).join(', ');
   const recs=S.recipes.map(r=>{const m=mr(r);return`"${r.name}" [${r.dishType||'any'}, ${r.time||'?'}min, ${r.calories||'?'}kcal, ${m.pct}% pantry match]`}).join('\n');
@@ -884,7 +1010,10 @@ function genShop(){
     const names=Array.isArray(slot)?slot:(slot?[slot]:[]);
     names.forEach(n=>{
       const r=S.recipes.find(x=>x.name===n);if(!r)return;
-      mr(r).missing.forEach(m=>{const key=m.name.toLowerCase();if(!all[key])all[key]={name:m.name,amount:m.amount,unit:m.unit,recipes:[],checked:false};all[key].recipes.push(n)});
+      const match=mr(r);
+      // Skip shopping for items covered by a prepared pantry item
+      if(match.preparedBy)return;
+      match.missing.forEach(m=>{const key=m.name.toLowerCase();if(!all[key])all[key]={name:m.name,amount:m.amount,unit:m.unit,recipes:[],checked:false};all[key].recipes.push(n)});
     });
   });
   S.shopping=Object.values(all);save();sw('shopping');
