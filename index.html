@@ -1043,23 +1043,104 @@ async function aiPlan(){
 }
 function genShop(){
   const all={};
-  Object.entries(S.plan).forEach(([k,slot])=>{
+
+  // Build a virtual pantry that gets depleted as we process each plan slot.
+  // Maps normIngredient(name) -> remaining numeric amount (NaN if non-numeric / unknown).
+  // Non-numeric amounts (e.g. "some", blank) are treated as unlimited (one use each).
+  const virtualPantry={};
+  S.pantry.forEach(p=>{
+    if(p.type==='prepared')return; // prepared items handled separately via mr()
+    const key=normIngredient(p.name);
+    if(!key)return;
+    const qty=parseFloat(p.amount);
+    // If already present keep the larger / more permissive value
+    if(!(key in virtualPantry)){
+      virtualPantry[key]={amount:isNaN(qty)?Infinity:qty, unit:(p.unit||'').toLowerCase()};
+    } else {
+      if(isNaN(qty)) virtualPantry[key].amount=Infinity;
+      else if(virtualPantry[key].amount!==Infinity) virtualPantry[key].amount+=qty;
+    }
+  });
+
+  // Process each plan slot in day order so earlier meals deplete the pantry first
+  const orderedKeys=[];
+  const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const MEALS=['Breakfast','Lunch','Dinner'];
+  DAYS.forEach(d=>MEALS.forEach(m=>orderedKeys.push(d+'-'+m)));
+  // Add any keys in plan not covered by the ordered list
+  Object.keys(S.plan).forEach(k=>{if(!orderedKeys.includes(k))orderedKeys.push(k);});
+
+  orderedKeys.forEach(k=>{
+    const slot=S.plan[k];
+    if(!slot)return;
     const names=Array.isArray(slot)?slot:(slot?[slot]:[]);
     names.forEach(n=>{
       const r=S.recipes.find(x=>x.name===n);if(!r)return;
       const match=mr(r);
-      // Skip shopping for items covered by a prepared pantry item
-      if(match.preparedBy)return;
-      match.missing.forEach(m=>{
-        const cleanName=stripPrepInstructions(m.name)||m.name;
-        const key=cleanName.toLowerCase().trim();
-        if(!key)return; // skip if name is somehow empty
-        if(!all[key])all[key]={name:cleanName,amount:m.amount,unit:m.unit,recipes:[],checked:false};
-        else if(!all[key].amount&&m.amount)all[key].amount=m.amount; // merge amount if missing
-        all[key].recipes.push(n);
+      if(match.preparedBy)return; // covered by prepared item, skip
+
+      // For each ingredient in this recipe, check virtual pantry
+      (r.ingredients||[]).forEach(ing=>{
+        const normKey=normIngredient(ing.name);
+        if(!normKey)return;
+        if(FREE_INGREDIENTS.test(normKey))return;
+
+        const reqQty=parseFloat(ing.amount);
+        const vp=virtualPantry[normKey];
+
+        if(!vp){
+          // Not in pantry at all — needs to be purchased
+          addToShopList(ing,n);
+          return;
+        }
+
+        if(vp.amount===Infinity){
+          // Non-numeric pantry amount — treat as one-time coverage, then deplete
+          vp.amount=0;
+          return; // covered this use
+        }
+
+        if(isNaN(reqQty)||vp.unit!==((ing.unit||'').toLowerCase())){
+          // Can't do numeric comparison (different units or no amount) — if any remains, use it
+          if(vp.amount>0){
+            vp.amount=0; // consume whatever was there
+            return;
+          }
+          addToShopList(ing,n);
+          return;
+        }
+
+        if(vp.amount>=reqQty){
+          vp.amount-=reqQty; // deduct from virtual pantry
+        } else {
+          // Partially or fully depleted — need to buy the shortfall
+          const shortfall=reqQty-vp.amount;
+          vp.amount=0;
+          addToShopList({...ing, amount:String(Math.round(shortfall*100)/100)}, n);
+        }
       });
     });
   });
+
+  function addToShopList(ing, recipeName){
+    const cleanName=stripPrepInstructions(ing.name)||ing.name;
+    const key=cleanName.toLowerCase().trim();
+    if(!key)return;
+    if(!all[key]){
+      all[key]={name:cleanName,amount:ing.amount,unit:ing.unit,recipes:[],checked:false};
+    } else {
+      // Try to sum amounts if numeric and same unit
+      const existingQty=parseFloat(all[key].amount);
+      const newQty=parseFloat(ing.amount);
+      if(!isNaN(existingQty)&&!isNaN(newQty)&&all[key].unit===ing.unit){
+        all[key].amount=String(Math.round((existingQty+newQty)*100)/100);
+      } else if(ing.amount&&all[key].amount!==ing.amount){
+        if(!all[key].amount)all[key].amount=ing.amount;
+      }
+    }
+    if(!all[key].recipes.includes(recipeName))all[key].recipes.push(recipeName);
+  }
+
   S.shopping=Object.values(all);save();sw('shopping');
 }
 
