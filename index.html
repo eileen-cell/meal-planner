@@ -381,6 +381,9 @@ function normIngredient(name){return name.toLowerCase().replace(DESCRIPTORS,'').
 // ── MATCH RECIPE ─────────────────────────────────────────────
 // A prepared pantry item (type==='prepared') satisfies its source recipe entirely
 // if it has servings remaining. Regular ingredients match by name normalization.
+// Ingredients that are always considered "on hand" — never need to be purchased
+const FREE_INGREDIENTS=/^(water|tap water|cold water|hot water|boiling water|ice water|warm water|salt and pepper|salt & pepper)$/i;
+
 function mr(r){
   if(!r.ingredients?.length)return{pct:0,missing:[],have:[]};
   // Check if a prepared item covers this whole recipe
@@ -389,8 +392,10 @@ function mr(r){
   const miss=[],have=[];
   r.ingredients.forEach(ri=>{
     const normRi=normIngredient(ri.name);
+    // Treat freely available staples as always on hand
+    if(FREE_INGREDIENTS.test(normRi)){have.push(ri);return;}
     const f=S.pantry.find(p=>{
-      if(p.type==='prepared')return false; // prepared items don't match individual ingredients
+      if(p.type==='prepared')return false;
       const normP=normIngredient(p.name);
       return normP===normRi||normP.includes(normRi)||normRi.includes(normP);
     });
