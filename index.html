@@ -382,7 +382,29 @@ function sw(n){
 }
 
 const DESCRIPTORS=/\b(extra\s+)?(large|small|medium|big|tiny|whole|fresh|frozen|dried|canned|cooked|raw|ripe|ripe|boneless|skinless|lean|ground|sliced|diced|chopped|minced|grated|shredded|peeled|crushed|halved|quartered|packed|heaping|level|rounded|flat|thin|thick|baby|young|old|sweet|hot|mild|spicy|sour|salted|unsalted|softened|melted|room\s+temperature|cold|warm|hot)\b/gi;
-function normIngredient(name){return name.toLowerCase().replace(DESCRIPTORS,'').replace(/\s+/g,' ').trim();}
+
+// Strip prep instructions from ingredient names.
+// Handles:
+//   - comma-separated clauses: "carrots, cut crosswise into 1/4-inch pieces" -> "carrots"
+//   - parenthetical notes:     "chicken (about 2 lbs, trimmed)"               -> "chicken"
+//   - prep-verb phrases:       "garlic cut into thin slices"                  -> "garlic"
+const PREP_VERBS=/\b(cut|slice|sliced|dice|diced|chop|chopped|mince|minced|grate|grated|shred|shredded|peel|peeled|trim|trimmed|crush|crushed|pound|pounded|score|scored|debone|deboned|butterflied|julienned|julienne|spiralized|zested|squeezed|torn|separated|divided|thawed|drained|rinsed|patted dry|roughly|finely|thinly|crosswise|lengthwise|diagonally|into \d|about \d|\d-inch|\d\/\d-inch|into pieces|into strips|into chunks|into rings|into wedges|into florets|as needed|to taste|optional)\b.*/i;
+
+function stripPrepInstructions(name){
+  // Remove anything after the first comma
+  let s=name.split(',')[0];
+  // Remove parenthetical content (including unclosed parens)
+  s=s.replace(/\(.*?\)/g,'').replace(/\(.*$/,'');
+  // Remove trailing prep-verb phrases
+  s=s.replace(PREP_VERBS,'');
+  // Clean up stray punctuation and whitespace
+  s=s.replace(/[,;:]+$/,'').trim();
+  return s;
+}
+
+function normIngredient(name){
+  return stripPrepInstructions(name).toLowerCase().replace(DESCRIPTORS,'').replace(/\s+/g,' ').trim();
+}
 // ── MATCH RECIPE ─────────────────────────────────────────────
 // A prepared pantry item (type==='prepared') satisfies its source recipe entirely
 // if it has servings remaining. Regular ingredients match by name normalization.
@@ -1023,7 +1045,12 @@ function genShop(){
       const match=mr(r);
       // Skip shopping for items covered by a prepared pantry item
       if(match.preparedBy)return;
-      match.missing.forEach(m=>{const key=m.name.toLowerCase();if(!all[key])all[key]={name:m.name,amount:m.amount,unit:m.unit,recipes:[],checked:false};all[key].recipes.push(n)});
+      match.missing.forEach(m=>{
+        const cleanName=stripPrepInstructions(m.name);
+        const key=cleanName.toLowerCase();
+        if(!all[key])all[key]={name:cleanName,amount:m.amount,unit:m.unit,recipes:[],checked:false};
+        all[key].recipes.push(n);
+      });
     });
   });
   S.shopping=Object.values(all);save();sw('shopping');
