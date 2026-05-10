@@ -1,66 +1,698 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.5">
-  <style type="text/css">
-    body {background-color: #e6e6e6}
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px 'Helvetica Neue'; color: #713e0c; -webkit-text-stroke: #713e0c; min-height: 15.0px}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Menlo; color: #713e0c; -webkit-text-stroke: #713e0c}
-    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px 'Helvetica Neue'; color: #0e0e0e; -webkit-text-stroke: #0e0e0e}
-    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px 'Helvetica Neue'; color: #0e0e0e; -webkit-text-stroke: #0e0e0e; min-height: 16.0px}
-    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px '.SF NS'; color: #0e0e0e; -webkit-text-stroke: #0e0e0e}
-    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px 'Helvetica Neue'; color: #535353; -webkit-text-stroke: #535353; min-height: 16.0px}
-    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px '.SF NS'; color: #535353; -webkit-text-stroke: #535353}
-    p.p8 {margin: 0.0px 0.0px 0.0px 0.0px; font: 16.0px '.SF NS'; color: #0e0e0e; -webkit-text-stroke: #0e0e0e}
-    p.p9 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px 'Helvetica Neue'; color: #535353; -webkit-text-stroke: #535353}
-    p.p10 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px 'Helvetica Neue'; color: #0e0e0e; -webkit-text-stroke: #0e0e0e; min-height: 17.0px}
-    p.p11 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 12.0px 'Helvetica Neue'; color: #ffffff; -webkit-text-stroke: #ffffff; min-height: 15.0px}
-    p.p12 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px 'Helvetica Neue'; color: #ffffff; -webkit-text-stroke: #ffffff; background-color: #0e0e0e}
-    p.p13 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 22.0px '.SF NS'; color: #0e0e0e; -webkit-text-stroke: #0e0e0e}
-    p.p14 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 11.0px 'Helvetica Neue'; color: #535353; -webkit-text-stroke: #535353}
-    p.p15 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 28.0px 'Helvetica Neue'; color: #535353; -webkit-text-stroke: #535353; min-height: 33.0px}
-    p.p16 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 13.0px 'Helvetica Neue'; color: #535353; -webkit-text-stroke: #535353}
-    span.s1 {font-kerning: none}
-    span.s2 {font: 12.0px 'Helvetica Neue'; font-kerning: none; background-color: #f8ead1}
-    span.s3 {font-kerning: none; background-color: #f8ead1}
-    span.s4 {font: 12.0px '.SF NS'; text-decoration: underline ; font-kerning: none}
-    span.s5 {font-kerning: none; background-color: #ffffff}
-    span.s6 {font-kerning: none; background-color: #f2f3f0}
-  </style>
+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<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pantry Meal Planner</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+/* ── Reset & base ── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --color-text-primary:#111;
+  --color-text-secondary:#666;
+  --color-text-tertiary:#999;
+  --color-background-primary:#fff;
+  --color-background-secondary:#f5f5f3;
+  --color-background-tertiary:#ebebeb;
+  --color-border-tertiary:rgba(0,0,0,.12);
+  --color-border-secondary:rgba(0,0,0,.22);
+  --color-border-primary:rgba(0,0,0,.36);
+  --border-radius-md:8px;
+  --border-radius-lg:12px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --color-text-primary:#f0f0ee;
+    --color-text-secondary:#aaa;
+    --color-text-tertiary:#777;
+    --color-background-primary:#1a1a18;
+    --color-background-secondary:#232320;
+    --color-background-tertiary:#2c2c29;
+    --color-border-tertiary:rgba(255,255,255,.1);
+    --color-border-secondary:rgba(255,255,255,.18);
+    --color-border-primary:rgba(255,255,255,.3);
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--color-background-tertiary);color:var(--color-text-primary);font-size:14px;min-height:100vh}
+
+/* ── Layout ── */
+.app{position:relative;display:flex;flex-direction:column;min-height:100vh;max-width:900px;margin:0 auto;background:var(--color-background-primary);box-shadow:0 0 0 0.5px var(--color-border-tertiary)}
+.tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);position:sticky;top:0;z-index:10;overflow-x:auto}
+.tab{padding:12px 16px;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:var(--color-text-secondary);transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:var(--color-text-primary)}
+.tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary)}
+.panel{display:none;padding:20px;flex-direction:column;gap:14px}
+.panel.active{display:flex}
+
+/* ── Forms ── */
+input[type=text],input[type=number],input[type=url],input[type=email],textarea,select{width:100%;padding:8px 10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--color-border-primary)}
+textarea{resize:vertical;min-height:70px}
+label.fl{font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px}
+
+/* ── Buttons ── */
+button{padding:7px 13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-primary);font-size:13px;font-family:inherit;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+button:hover{background:var(--color-background-secondary)}
+button:active{transform:scale(.98)}
+button.pri{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+button.pri:hover{opacity:.85}
+button.danger{color:#A32D2D;border-color:#A32D2D}
+button.danger:hover{background:#FCEBEB}
+button.sm{padding:5px 10px;font-size:12px}
+button.ghost{border-color:transparent}
+button.ghost:hover{border-color:var(--color-border-tertiary)}
+
+/* ── Utilities ── */
+.fr{display:flex;gap:8px;align-items:center}
+.fr.wrap{flex-wrap:wrap}
+.sp{flex:1}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media(max-width:600px){.g3{grid-template-columns:1fr 1fr}.g5{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:400px){.g2,.g3{grid-template-columns:1fr}}
+
+/* ── Badges & tags ── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap}
+.bg{background:#EAF3DE;color:#3B6D11}.ba{background:#FAEEDA;color:#854F0B}.br{background:#FCEBEB;color:#A32D2D}
+.bb{background:#E6F1FB;color:#185FA5}.bp{background:#EEEDFE;color:#534AB7}.bt{background:#E1F5EE;color:#0F6E56}.bgr{background:#F1EFE8;color:#5F5E5A}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary);cursor:pointer;transition:all .12s;user-select:none}
+.tag:hover,.tag.on{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+
+/* ── Cards ── */
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px}
+.sc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center}
+.sc .sv{font-size:22px;font-weight:500}
+.sc .sl{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+
+/* ── Recipe grid ── */
+.rcg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.rc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px 14px;cursor:pointer;transition:border-color .15s;display:flex;flex-direction:column;gap:5px}
+.rc:hover{border-color:var(--color-border-primary)}
+.rc .rn{font-weight:500;font-size:13px}
+.rc .rm{font-size:11px;color:var(--color-text-secondary)}
+.mbar{height:3px;border-radius:2px;background:var(--color-background-tertiary);overflow:hidden;margin-top:2px}
+.mfill{height:100%;border-radius:2px;transition:width .4s}
+
+/* ── Pantry list ── */
+.ii{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)}
+
+/* ── Week grid ── */
+.wg{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dc{display:flex;flex-direction:column;gap:4px}
+.dh{font-size:10px;font-weight:500;color:var(--color-text-secondary);text-align:center;padding:3px}
+.ms{min-height:62px;border:0.5px dashed var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:5px;display:flex;flex-direction:column;gap:2px;cursor:pointer;transition:all .15s}
+.ms:hover{border-color:var(--color-border-primary);background:var(--color-background-secondary)}
+.ms.filled{border-style:solid;border-color:var(--color-border-secondary)}
+.ms .mll{font-size:9px;color:var(--color-text-secondary)}
+.ms .mln{font-size:10px;font-weight:500;line-height:1.3}
+.ms .mlm{font-size:9px}
+@media(max-width:600px){.wg{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:400px){.wg{grid-template-columns:repeat(2,1fr)}}
+
+/* ── Shopping ── */
+.si{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)}
+.si.chk .sn{text-decoration:line-through;color:var(--color-text-secondary)}
+
+/* ── AI loading ── */
+.ail{display:flex;align-items:center;gap:8px;color:var(--color-text-secondary);font-size:13px;padding:8px 0}
+.dpulse{display:flex;gap:4px}.dpulse span{width:5px;height:5px;border-radius:50%;background:var(--color-text-secondary);animation:pulse 1.2s infinite}
+.dpulse span:nth-child(2){animation-delay:.2s}.dpulse span:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+/* ── Empty states ── */
+.es{text-align:center;padding:28px 16px;color:var(--color-text-secondary);font-size:13px}
+.es i{font-size:28px;display:block;margin-bottom:8px;opacity:.35}
+
+/* ── Overlay / drawer ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
+.overlay.on{display:flex}
+.drawer{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:20px;width:100%;max-width:600px;border:0.5px solid var(--color-border-secondary);margin:auto}
+.mt{font-size:15px;font-weight:500;margin-bottom:14px}
+.itabs{display:flex;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden;margin-bottom:14px}
+.itab{flex:1;padding:8px;text-align:center;font-size:12px;font-weight:500;cursor:pointer;color:var(--color-text-secondary);transition:all .15s;border:none;background:transparent}
+.itab.on{background:var(--color-text-primary);color:var(--color-background-primary)}
+.cpp{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;font-size:12px;border:0.5px solid var(--color-border-tertiary);cursor:pointer;transition:all .12s;user-select:none}
+.cpp:hover{border-color:var(--color-border-primary)}
+.cpp.on{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+
+/* ── Status messages ── */
+.ist{padding:10px 13px;border-radius:var(--border-radius-md);font-size:13px;margin-top:8px}
+.ist.ok{background:#EAF3DE;color:#3B6D11}.ist.err{background:#FCEBEB;color:#A32D2D}
+.ar{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:12px 14px;font-size:13px;line-height:1.7;white-space:pre-wrap}
+
+/* ── Progress bars ── */
+.pbar-wrap{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.pbar-label{font-size:12px;color:var(--color-text-secondary);width:70px;flex-shrink:0}
+.pbar-track{flex:1;height:6px;background:var(--color-background-tertiary);border-radius:3px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:3px;transition:width .4s}
+.pbar-val{font-size:11px;color:var(--color-text-secondary);width:80px;text-align:right;flex-shrink:0}
+.goal-over{color:#A32D2D}
+
+/* ── Misc ── */
+.hbox{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:10px}
+.hbox b{color:var(--color-text-primary);font-weight:500}
+.confirm-bar{display:flex;align-items:center;gap:8px;padding:9px 13px;background:#FCEBEB;border-radius:var(--border-radius-md);font-size:13px;color:#A32D2D}
+.api-banner{background:#FAEEDA;border-bottom:0.5px solid #EF9F27;padding:10px 16px;font-size:12px;color:#854F0B;display:flex;align-items:center;gap:8px}
+.api-banner a{color:#854F0B;font-weight:500}
+.api-banner.hidden{display:none}
+</style>
 </head>
 <body>
-<p class="p1"><span class="s1"></span><br></p>
-<p class="p2"><span class="s2">No API key set. Open this file in a text editor and replace </span><span class="s3">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</span><span class="s2"> with your key from <a href="https://console.anthropic.com/"><span class="s4">console.anthropic.com</span></a>.</span></p>
-<p class="p1"><span class="s1"></span><br></p>
-<p class="p3"><span class="s3">Dismiss</span></p>
-<p class="p4"><span class="s1"></span><br></p>
-<p class="p5"><span class="s5">Pantry</span></p>
-<p class="p6"><span class="s1"></span><br></p>
-<p class="p7"><span class="s5">Recipes</span></p>
-<p class="p6"><span class="s1"></span><br></p>
-<p class="p7"><span class="s5">Meal plan</span></p>
-<p class="p6"><span class="s1"></span><br></p>
-<p class="p7"><span class="s5">Shopping</span></p>
-<p class="p6"><span class="s1"></span><br></p>
-<p class="p7"><span class="s5">Goals</span></p>
-<p class="p6"><span class="s1"></span><br></p>
-<p class="p7"><span class="s5">Settings</span></p>
-<p class="p8"><span class="s5">Your pantry</span></p>
-<p class="p9"><span class="s5">Track what you have on hand</span></p>
-<p class="p10"><span class="s1"></span><br></p>
-<p class="p11"><span class="s1"></span><br></p>
-<p class="p12"><span class="s1">Add ingredient</span></p>
-<p class="p13"><span class="s6">0</span></p>
-<p class="p14"><span class="s6">ingredients</span></p>
-<p class="p13"><span class="s6">0</span></p>
-<p class="p14"><span class="s6">fully covered</span></p>
-<p class="p13"><span class="s6">0</span></p>
-<p class="p14"><span class="s6">nearly ready</span></p>
-<p class="p15"><span class="s1"></span><br></p>
-<p class="p16"><span class="s5">No ingredients yet. Add what you have!</span></p>
-</body>
-</html>
+
+<!-- API key banner — shown when key is missing -->
+<div class="api-banner" id="api-banner">
+  <i class="ti ti-key" aria-hidden="true"></i>
+  <span>No API key set. Open this file in a text editor and replace <code>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</code> with your key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</span>
+  <div class="sp"></div>
+  <button class="sm" onclick="document.getElementById('api-banner').classList.add('hidden')">Dismiss</button>
+</div>
+
+<div class="app" id="app">
+  <div class="tabs">
+    <div class="tab active" onclick="sw('pantry')"><i class="ti ti-basket" aria-hidden="true"></i> Pantry</div>
+    <div class="tab" onclick="sw('recipes')"><i class="ti ti-book" aria-hidden="true"></i> Recipes</div>
+    <div class="tab" onclick="sw('planner')"><i class="ti ti-calendar-week" aria-hidden="true"></i> Meal plan</div>
+    <div class="tab" onclick="sw('shopping')"><i class="ti ti-shopping-cart" aria-hidden="true"></i> Shopping</div>
+    <div class="tab" onclick="sw('goals')"><i class="ti ti-target" aria-hidden="true"></i> Goals</div>
+    <div class="tab" onclick="sw('settings')"><i class="ti ti-settings" aria-hidden="true"></i> Settings</div>
+  </div>
+
+  <!-- PANTRY -->
+  <div id="tab-pantry" class="panel active">
+    <div class="fr"><div><div style="font-size:16px;font-weight:500">Your pantry</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Track what you have on hand</div></div><div class="sp"></div><button class="pri sm" onclick="oai()"><i class="ti ti-plus" aria-hidden="true"></i> Add ingredient</button></div>
+    <div class="g3"><div class="sc"><div class="sv" id="si1">0</div><div class="sl">ingredients</div></div><div class="sc"><div class="sv" id="si2">0</div><div class="sl">fully covered</div></div><div class="sc"><div class="sv" id="si3">0</div><div class="sl">nearly ready</div></div></div>
+    <div id="pantry-list"><div class="es"><i class="ti ti-basket" aria-hidden="true"></i>No ingredients yet. Add what you have!</div></div>
+  </div>
+
+  <!-- RECIPES -->
+  <div id="tab-recipes" class="panel">
+    <div class="fr wrap">
+      <div><div style="font-size:16px;font-weight:500">Recipe book</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Save, import, and filter your recipes</div></div>
+      <div class="sp"></div>
+      <button class="sm" onclick="showImport()"><i class="ti ti-download" aria-hidden="true"></i> Import</button>
+      <button class="sm" onclick="showAiGen()"><i class="ti ti-wand" aria-hidden="true"></i> AI generate</button>
+      <button class="pri sm" onclick="showRecipeForm()"><i class="ti ti-plus" aria-hidden="true"></i> Add recipe</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <div class="fr wrap" style="gap:6px">
+        <input type="text" id="rs" placeholder="Search…" style="max-width:180px;flex-shrink:0" oninput="rR()">
+        <select id="fm" onchange="rR()" style="max-width:145px"><option value="all">All recipes</option><option value="can">Can make now</option><option value="almost">Almost (≥70%)</option><option value="miss">Missing items</option></select>
+        <select id="fc" onchange="rR()" style="max-width:120px"><option value="">Any cuisine</option></select>
+        <select id="fd" onchange="rR()" style="max-width:120px"><option value="">Any dish type</option></select>
+      </div>
+      <div class="fr wrap" style="gap:6px">
+        <select id="ft" onchange="rR()" style="max-width:150px"><option value="">Any prep time</option><option value="15">Under 15 min</option><option value="30">Under 30 min</option><option value="45">Under 45 min</option><option value="60">Under 1 hour</option><option value="9999">Over 1 hour</option></select>
+        <select id="ffiber" onchange="rR()" style="max-width:150px"><option value="">Any fiber</option><option value="5">5g+ fiber</option><option value="10">10g+ fiber</option><option value="15">15g+ fiber</option><option value="20">20g+ fiber</option></select>
+        <select id="fcal" onchange="rR()" style="max-width:150px"><option value="">Any calories</option><option value="300">Under 300 kcal</option><option value="500">Under 500 kcal</option><option value="700">Under 700 kcal</option><option value="1000">Under 1000 kcal</option></select>
+      </div>
+      <div class="fr wrap" style="gap:5px" id="tag-fb"></div>
+    </div>
+    <div class="rcg" id="rg"><div class="es" style="grid-column:1/-1"><i class="ti ti-book" aria-hidden="true"></i>No recipes yet.</div></div>
+  </div>
+
+  <!-- PLANNER -->
+  <div id="tab-planner" class="panel">
+    <div class="fr wrap">
+      <div><div style="font-size:16px;font-weight:500">Weekly meal plan</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Click any slot to assign a recipe</div></div>
+      <div class="sp"></div>
+      <button class="sm" onclick="aiPlan()"><i class="ti ti-wand" aria-hidden="true"></i> AI plan week ↗</button>
+      <button class="sm danger" onclick="clrPlan()"><i class="ti ti-trash" aria-hidden="true"></i> Clear</button>
+      <button class="pri sm" onclick="genShop()"><i class="ti ti-shopping-cart" aria-hidden="true"></i> Gen shopping list</button>
+    </div>
+    <div id="planner-confirm"></div>
+    <div id="plan-nutrition"></div>
+    <div id="ai-pr"></div>
+    <div class="wg" id="wg"></div>
+  </div>
+
+  <!-- SHOPPING -->
+  <div id="tab-shopping" class="panel">
+    <div class="fr"><div><div style="font-size:16px;font-weight:500">Shopping list</div></div><div class="sp"></div><button class="sm" onclick="copyShop()"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button><button class="sm danger" onclick="clrShop()"><i class="ti ti-trash" aria-hidden="true"></i> Clear</button></div>
+    <div id="shop-confirm"></div>
+    <div id="shopping-list"><div class="es"><i class="ti ti-shopping-cart" aria-hidden="true"></i>Generate a shopping list from your meal plan first.</div></div>
+  </div>
+
+  <!-- GOALS -->
+  <div id="tab-goals" class="panel">
+    <div class="fr"><div><div style="font-size:16px;font-weight:500">Nutrition goals</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Set daily and weekly targets</div></div><div class="sp"></div><button class="pri sm" onclick="saveGoals()"><i class="ti ti-check" aria-hidden="true"></i> Save goals</button></div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">Daily targets</div>
+      <div class="g3" style="gap:10px;margin-bottom:10px"><div><label class="fl">Calories (kcal)</label><input type="number" id="g-cal" placeholder="e.g. 2000" min="0"></div><div><label class="fl">Protein (g)</label><input type="number" id="g-protein" placeholder="e.g. 150" min="0"></div><div><label class="fl">Carbs (g)</label><input type="number" id="g-carbs" placeholder="e.g. 250" min="0"></div></div>
+      <div class="g3" style="gap:10px"><div><label class="fl">Fat (g)</label><input type="number" id="g-fat" placeholder="e.g. 65" min="0"></div><div><label class="fl">Fiber (g)</label><input type="number" id="g-fiber" placeholder="e.g. 30" min="0"></div><div><label class="fl">Sodium (mg)</label><input type="number" id="g-sodium" placeholder="e.g. 2300" min="0"></div></div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">Weekly targets <span style="font-size:11px;font-weight:400;color:var(--color-text-secondary)">(auto = daily × 7 if blank)</span></div>
+      <div class="g3" style="gap:10px;margin-bottom:10px"><div><label class="fl">Calories (kcal)</label><input type="number" id="g-wcal" placeholder="auto" min="0"></div><div><label class="fl">Protein (g)</label><input type="number" id="g-wprotein" placeholder="auto" min="0"></div><div><label class="fl">Carbs (g)</label><input type="number" id="g-wcarbs" placeholder="auto" min="0"></div></div>
+      <div class="g3" style="gap:10px"><div><label class="fl">Fat (g)</label><input type="number" id="g-wfat" placeholder="auto" min="0"></div><div><label class="fl">Fiber (g)</label><input type="number" id="g-wfiber" placeholder="auto" min="0"></div><div><label class="fl">Sodium (mg)</label><input type="number" id="g-wsodium" placeholder="auto" min="0"></div></div>
+    </div>
+    <div class="card"><div style="font-size:13px;font-weight:500;margin-bottom:10px">Weekly plan nutrition summary</div><div id="goal-bars"><div style="font-size:13px;color:var(--color-text-secondary)">Plan your week first to see progress here.</div></div></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="tab-settings" class="panel">
+    <div><div style="font-size:16px;font-weight:500">Settings</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Configure your API key and manage data</div></div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">Anthropic API key</div>
+      <div class="hbox">Your API key is stored only in your browser's localStorage and never sent anywhere except directly to api.anthropic.com. Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--color-text-primary)">console.anthropic.com</a>. Set a monthly spend limit on your key to avoid unexpected charges.</div>
+      <label class="fl">API key</label>
+      <div class="fr" style="gap:8px">
+        <input type="password" id="api-key-input" placeholder="sk-ant-…" style="font-family:monospace">
+        <button class="pri" onclick="saveApiKey()"><i class="ti ti-check" aria-hidden="true"></i> Save</button>
+      </div>
+      <div id="api-key-status" style="font-size:12px;margin-top:6px;color:var(--color-text-secondary)"></div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">Data management</div>
+      <div class="fr wrap" style="gap:8px">
+        <button onclick="exportData()"><i class="ti ti-download" aria-hidden="true"></i> Export all data</button>
+        <button onclick="document.getElementById('import-file').click()"><i class="ti ti-upload" aria-hidden="true"></i> Import data</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+        <button class="danger" onclick="clrAllData()"><i class="ti ti-trash" aria-hidden="true"></i> Clear all data</button>
+      </div>
+      <div id="data-confirm"></div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-top:8px">Export saves your pantry, recipes, meal plan, and goals as a JSON file you can back up or move to another browser.</div>
+    </div>
+  </div>
+
+  <!-- OVERLAY -->
+  <div class="overlay" id="overlay" onclick="if(event.target===this)hideOverlay()">
+    <div class="drawer" id="drawer"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+// ── API KEY ──────────────────────────────────────────────────
+// Replace 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 with your key from console.anthropic.com
+// OR enter it in the Settings tab — it will be saved in localStorage.
+const HARDCODED_KEY = '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';
+
+function getApiKey(){
+  return localStorage.getItem('pmp-api-key') || (HARDCODED_KEY !== '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' ? HARDCODED_KEY : '');
+}
+
+if(typeof pdfjsLib!=='undefined') pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const MEALS=['Breakfast','Lunch','Dinner'];
+const CUISINES=['American','Italian','Mexican','Asian','Japanese','Chinese','Indian','Mediterranean','French','Thai','Greek','Middle Eastern','Korean','Vietnamese','Other'];
+const DISH_TYPES=['Breakfast','Lunch','Dinner','Main','Side dish','Salad','Soup','Snack','Dessert','Drink'];
+const DIETARY=['Vegetarian','Vegan','Gluten-free','Dairy-free','Keto','Paleo','Low-carb','High-protein','Nut-free'];
+const NUT_KEYS=['calories','protein','carbs','fat','fiber','sodium'];
+const NUT_LABELS={calories:'Calories',protein:'Protein',carbs:'Carbs',fat:'Fat',fiber:'Fiber',sodium:'Sodium'};
+const NUT_UNITS={calories:'kcal',protein:'g',carbs:'g',fat:'g',fiber:'g',sodium:'mg'};
+const NUT_COLORS={calories:'#639922',protein:'#185FA5',carbs:'#BA7517',fat:'#993C1D',fiber:'#0F6E56',sodium:'#534AB7'};
+const SCHEMA='{"name":"string","servings":4,"time":30,"calories":null,"protein":null,"carbs":null,"fat":null,"fiber":null,"sodium":null,"cuisine":null,"dishType":null,"dietary":[],"ingredients":[{"name":"string","amount":"string","unit":"string"}],"notes":"2-4 sentence instructions","sourceUrl":null}';
+
+let S={pantry:[],recipes:[],plan:{},shopping:[],goals:{daily:{},weekly:{}}};
+let activeTagF=[];
+try{const s=localStorage.getItem('pmp-v3');if(s)S={...S,...JSON.parse(s)}}catch(e){}
+
+function save(){try{localStorage.setItem('pmp-v3',JSON.stringify(S))}catch(e){}updateStats()}
+
+// ── AI ───────────────────────────────────────────────────────
+async function callAI(messages,system){
+  const key=getApiKey();
+  if(!key){throw new Error('No API key set. Go to the Settings tab to add your key.')}
+  const body={model:'claude-sonnet-4-20250514',max_tokens:1200,messages};
+  if(system)body.system=system;
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-allow-browser':'true'},
+    body:JSON.stringify(body)
+  });
+  if(!res.ok){let msg='HTTP '+res.status;try{const j=await res.json();msg=j?.error?.message||msg}catch(e){}throw new Error(msg)}
+  const d=await res.json();
+  return(d.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('');
+}
+
+function parseJSON(text){const m=text.match(/\{[\s\S]*\}/);if(!m)throw new Error('No JSON in response');return JSON.parse(m[0])}
+
+async function extractPdfText(file){
+  if(typeof pdfjsLib==='undefined')throw new Error('PDF library not loaded yet, please try again.');
+  const buf=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+  const pages=[];
+  for(let i=1;i<=Math.min(pdf.numPages,30);i++){const page=await pdf.getPage(i);const tc=await page.getTextContent();pages.push(tc.items.map(it=>it.str).join(' '))}
+  const text=pages.join('\n').trim();
+  if(!text||text.length<50)throw new Error('No extractable text in this PDF — it may be a scanned image. Use Paste text instead.');
+  return text;
+}
+
+// ── OVERLAY ──────────────────────────────────────────────────
+function showOverlay(html){document.getElementById('drawer').innerHTML=html;document.getElementById('overlay').classList.add('on')}
+function hideOverlay(){document.getElementById('overlay').classList.remove('on');document.getElementById('drawer').innerHTML=''}
+
+function inlineConfirm(id,msg,fn){
+  const el=document.getElementById(id);if(!el)return;
+  el.innerHTML=`<div class="confirm-bar"><span style="flex:1">${msg}</span><button class="sm danger" onclick="document.getElementById('${id}').innerHTML='';(${fn.toString()})()">Yes, clear</button><button class="sm" onclick="document.getElementById('${id}').innerHTML=''">Cancel</button></div>`;
+}
+
+function sw(n){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['pantry','recipes','planner','shopping','goals','settings'][i]===n));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+  hideOverlay();
+  if(n==='recipes'){pFD();rTFB();rR()}
+  if(n==='planner'){rW();renderPN()}
+  if(n==='shopping')renderShop();
+  if(n==='goals'){loadGF();renderGB()}
+  if(n==='settings')loadSettings();
+}
+
+function mr(r){
+  if(!r.ingredients?.length)return{pct:0,missing:[],have:[]};
+  const miss=[],have=[];
+  r.ingredients.forEach(ri=>{const f=S.pantry.find(p=>p.name.toLowerCase()===ri.name.toLowerCase());(f?have:miss).push(ri)});
+  return{pct:Math.round(have.length/r.ingredients.length*100),missing:miss,have};
+}
+
+// ── PANTRY ───────────────────────────────────────────────────
+function oai(e=null){
+  const g=e!==null?S.pantry[e]:{name:'',amount:'',unit:'g'};
+  showOverlay(`<div class="mt">${e!==null?'Edit':'Add'} ingredient</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><label class="fl">Name</label><input type="text" id="in" value="${g.name}" placeholder="Chicken breast"></div>
+      <div class="g2"><div><label class="fl">Amount</label><input type="text" id="ia" value="${g.amount}"></div><div><label class="fl">Unit</label><input type="text" id="iu" value="${g.unit}" placeholder="g / ml / cups / pcs"></div></div>
+      <div class="fr" style="justify-content:flex-end"><button onclick="hideOverlay()">Cancel</button><button class="pri" onclick="svi(${e})">${e!==null?'Save':'Add'}</button></div>
+    </div>`);
+  setTimeout(()=>document.getElementById('in')?.focus(),50);
+}
+function svi(e){
+  const n=document.getElementById('in').value.trim(),a=document.getElementById('ia').value.trim(),u=document.getElementById('iu').value.trim();
+  if(!n)return;
+  if(e!==null)S.pantry[e]={name:n,amount:a,unit:u};else S.pantry.push({name:n,amount:a,unit:u});
+  save();hideOverlay();renderPantry();
+}
+function renderPantry(){
+  const el=document.getElementById('pantry-list');
+  if(!S.pantry.length){el.innerHTML='<div class="es"><i class="ti ti-basket" aria-hidden="true"></i>No ingredients yet.</div>';return}
+  el.innerHTML=S.pantry.map((g,i)=>`<div class="ii"><span style="flex:1;font-size:13px">${g.name}</span><span style="font-size:12px;color:var(--color-text-secondary)">${g.amount} ${g.unit}</span><button class="sm ghost" onclick="oai(${i})"><i class="ti ti-edit" aria-hidden="true"></i></button><button class="sm ghost danger" onclick="delPantry(${i})"><i class="ti ti-trash" aria-hidden="true"></i></button></div>`).join('');
+  updateStats();
+}
+function delPantry(i){S.pantry.splice(i,1);save();renderPantry()}
+function updateStats(){
+  const a=S.recipes.map(r=>mr(r));
+  document.getElementById('si1').textContent=S.pantry.length;
+  document.getElementById('si2').textContent=a.filter(x=>x.pct>=100).length;
+  document.getElementById('si3').textContent=a.filter(x=>x.pct>=70&&x.pct<100).length;
+}
+
+// ── FILTERS ──────────────────────────────────────────────────
+function pFD(){
+  const cu=[...new Set(S.recipes.map(r=>r.cuisine).filter(Boolean))];
+  const di=[...new Set(S.recipes.map(r=>r.dishType).filter(Boolean))];
+  const ce=document.getElementById('fc'),de=document.getElementById('fd'),cv=ce.value,dv=de.value;
+  ce.innerHTML='<option value="">Any cuisine</option>'+cu.map(c=>`<option value="${c}">${c}</option>`).join('');
+  de.innerHTML='<option value="">Any dish type</option>'+di.map(d=>`<option value="${d}">${d}</option>`).join('');
+  ce.value=cv;de.value=dv;
+}
+function rTFB(){
+  const all=[...new Set(S.recipes.flatMap(r=>r.dietary||[]))];
+  const bar=document.getElementById('tag-fb');
+  if(!all.length){bar.innerHTML='';return}
+  bar.innerHTML=all.map(t=>`<span class="tag ${activeTagF.includes(t)?'on':''}" onclick="tgF('${t}')">${t}</span>`).join('');
+}
+function tgF(t){const i=activeTagF.indexOf(t);if(i>-1)activeTagF.splice(i,1);else activeTagF.push(t);rTFB();rR()}
+
+// ── RECIPE FORM ───────────────────────────────────────────────
+function showRecipeForm(e=null){
+  const r=e!==null?S.recipes[e]:{name:'',servings:'4',time:'30',ingredients:[],notes:'',calories:'',protein:'',carbs:'',fat:'',fiber:'',sodium:'',cuisine:'',dishType:'',dietary:[],sourceUrl:''};
+  const it=(r.ingredients||[]).map(i=>`${i.name}: ${i.amount} ${i.unit}`).join('\n');
+  const dp=DIETARY.map(d=>`<span class="cpp ${(r.dietary||[]).includes(d)?'on':''}" onclick="this.classList.toggle('on')">${d}</span>`).join('');
+  showOverlay(`<div class="mt">${e!==null?'Edit':'Add'} recipe</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><label class="fl">Recipe name</label><input type="text" id="rn" value="${r.name}" placeholder="Chicken Stir Fry"></div>
+      <div class="g3"><div><label class="fl">Servings</label><input type="number" id="rs2" value="${r.servings}" min="1"></div><div><label class="fl">Cook time (min)</label><input type="number" id="rt" value="${r.time}" min="1"></div><div><label class="fl">Calories/serving</label><input type="number" id="rc" value="${r.calories||''}"></div></div>
+      <div class="g3"><div><label class="fl">Protein (g)</label><input type="number" id="rpr" value="${r.protein||''}"></div><div><label class="fl">Carbs (g)</label><input type="number" id="rcb" value="${r.carbs||''}"></div><div><label class="fl">Fat (g)</label><input type="number" id="rft" value="${r.fat||''}"></div></div>
+      <div class="g2"><div><label class="fl">Fiber (g)</label><input type="number" id="rfib" value="${r.fiber||''}"></div><div><label class="fl">Sodium (mg)</label><input type="number" id="rsod" value="${r.sodium||''}"></div></div>
+      <div class="g2"><div><label class="fl">Cuisine</label><select id="rcu"><option value="">Select…</option>${CUISINES.map(c=>`<option value="${c}" ${r.cuisine===c?'selected':''}>${c}</option>`).join('')}</select></div><div><label class="fl">Dish type</label><select id="rdt"><option value="">Select…</option>${DISH_TYPES.map(d=>`<option value="${d}" ${r.dishType===d?'selected':''}>${d}</option>`).join('')}</select></div></div>
+      <div><label class="fl">Dietary labels</label><div style="display:flex;flex-wrap:wrap;gap:5px" id="dp">${dp}</div></div>
+      <div><label class="fl">Ingredients (Name: Amount Unit, one per line)</label><textarea id="ri" placeholder="Chicken breast: 500 g&#10;Soy sauce: 3 tbsp">${it}</textarea></div>
+      <div><label class="fl">Notes / instructions</label><textarea id="rno">${r.notes||''}</textarea></div>
+      <div><label class="fl">Source URL (optional)</label><input type="url" id="ru" value="${r.sourceUrl||''}" placeholder="https://…"></div>
+      <div class="fr" style="justify-content:flex-end;margin-top:4px"><button onclick="hideOverlay()">Cancel</button><button class="pri" onclick="svR(${e})">${e!==null?'Save changes':'Add recipe'}</button></div>
+    </div>`);
+  setTimeout(()=>document.getElementById('rn')?.focus(),50);
+}
+function svR(e){
+  const n=document.getElementById('rn').value.trim();if(!n)return;
+  const ir=document.getElementById('ri').value.trim();
+  const ings=ir.split('\n').filter(Boolean).map(l=>{const ci=l.indexOf(':');if(ci===-1)return{name:l.trim(),amount:'',unit:''};const nm=l.slice(0,ci).trim(),rs=l.slice(ci+1).trim().split(/\s+/);return{name:nm,amount:rs[0]||'',unit:rs.slice(1).join(' ')||''}});
+  const diet=[...document.querySelectorAll('#dp .cpp.on')].map(el=>el.textContent.trim());
+  const obj={name:n,servings:document.getElementById('rs2').value,time:document.getElementById('rt').value,calories:document.getElementById('rc').value,protein:document.getElementById('rpr').value,carbs:document.getElementById('rcb').value,fat:document.getElementById('rft').value,fiber:document.getElementById('rfib').value,sodium:document.getElementById('rsod').value,cuisine:document.getElementById('rcu').value,dishType:document.getElementById('rdt').value,dietary:diet,ingredients:ings,notes:document.getElementById('rno').value.trim(),sourceUrl:document.getElementById('ru').value.trim()};
+  if(e!==null)S.recipes[e]=obj;else S.recipes.push(obj);
+  save();hideOverlay();pFD();rTFB();rR();
+}
+
+// ── RECIPE LIST ───────────────────────────────────────────────
+function rR(){
+  const grid=document.getElementById('rg');
+  const q=(document.getElementById('rs')?.value||'').toLowerCase();
+  const fm=document.getElementById('fm')?.value||'all';
+  const fcu=document.getElementById('fc')?.value||'';
+  const fd=document.getElementById('fd')?.value||'';
+  const ft=document.getElementById('ft')?.value||'';
+  const ff=document.getElementById('ffiber')?.value||'';
+  const fcl=document.getElementById('fcal')?.value||'';
+  let recs=S.recipes.map((r,i)=>({r,i,m:mr(r)}));
+  if(q)recs=recs.filter(({r})=>r.name.toLowerCase().includes(q)||(r.notes||'').toLowerCase().includes(q));
+  if(fm==='can')recs=recs.filter(({m})=>m.pct>=100);
+  else if(fm==='almost')recs=recs.filter(({m})=>m.pct>=70&&m.pct<100);
+  else if(fm==='miss')recs=recs.filter(({m})=>m.pct<70);
+  if(fcu)recs=recs.filter(({r})=>r.cuisine===fcu);
+  if(fd)recs=recs.filter(({r})=>r.dishType===fd);
+  if(ft){const tv=parseInt(ft);if(tv===9999)recs=recs.filter(({r})=>parseInt(r.time||0)>=60);else recs=recs.filter(({r})=>r.time&&parseInt(r.time)<=tv)}
+  if(ff){const fv=parseInt(ff);recs=recs.filter(({r})=>r.fiber&&parseFloat(r.fiber)>=fv)}
+  if(fcl){const cv=parseInt(fcl);recs=recs.filter(({r})=>r.calories&&parseFloat(r.calories)<=cv)}
+  if(activeTagF.length)recs=recs.filter(({r})=>activeTagF.every(f=>(r.dietary||[]).includes(f)));
+  if(!recs.length){grid.innerHTML='<div class="es" style="grid-column:1/-1"><i class="ti ti-book" aria-hidden="true"></i>'+(S.recipes.length?'No recipes match.':'No recipes yet.')+'</div>';return}
+  grid.innerHTML=recs.map(({r,i,m})=>{
+    const fc2=m.pct>=100?'#3B6D11':m.pct>=70?'#BA7517':'#A32D2D';
+    const mb=m.pct>=100?'<span class="badge bg">Ready</span>':m.pct>=70?`<span class="badge ba">${m.missing.length} missing</span>`:`<span class="badge br">${m.missing.length} missing</span>`;
+    const tb=r.time?`<span class="badge bgr"><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> ${r.time}m</span>`:'';
+    const cb=r.calories?`<span class="badge bgr">${r.calories} kcal</span>`:'';
+    const fb=r.fiber?`<span class="badge bt">${r.fiber}g fiber</span>`:'';
+    const cu=r.cuisine?`<span class="badge bb">${r.cuisine}</span>`:'';
+    const dt=r.dishType?`<span class="badge bp">${r.dishType}</span>`:'';
+    return`<div class="rc" onclick="oRD(${i})"><div class="rn">${r.name}</div><div class="rm">${r.servings||'?'} srv</div><div style="display:flex;gap:4px;flex-wrap:wrap">${tb}${cb}${fb}</div><div style="display:flex;gap:4px;flex-wrap:wrap">${cu}${dt}${mb}</div><div class="mbar"><div class="mfill" style="width:${Math.min(m.pct,100)}%;background:${fc2}"></div></div><div style="font-size:10px;color:var(--color-text-secondary)">${m.pct}% pantry match</div></div>`;
+  }).join('');
+}
+
+function oRD(i){
+  const r=S.recipes[i],m=mr(r);
+  const ih=(r.ingredients||[]).map(g=>{const p=S.pantry.find(x=>x.name.toLowerCase()===g.name.toLowerCase());return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">${p?'<i class="ti ti-check" style="color:#3B6D11;font-size:13px" aria-hidden="true"></i>':'<i class="ti ti-x" style="color:#A32D2D;font-size:13px" aria-hidden="true"></i>'}<span style="flex:1;font-size:13px">${g.name}</span><span style="font-size:12px;color:var(--color-text-secondary)">${g.amount} ${g.unit}</span></div>`}).join('');
+  const macH=NUT_KEYS.map(k=>r[k]?`<div class="sc"><div class="sv">${r[k]}</div><div class="sl">${NUT_LABELS[k]}<br>${NUT_UNITS[k]}</div></div>`:'').filter(Boolean).join('');
+  const labels=[r.cuisine,r.dishType,...(r.dietary||[])].filter(Boolean).map(l=>`<span class="badge bb">${l}</span>`).join('');
+  const mh=m.missing.length?`<div style="margin-top:10px"><div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:5px">Shopping needed</div>${m.missing.map(x=>`<div style="font-size:13px;padding:3px 0">${x.name}: ${x.amount} ${x.unit}</div>`).join('')}</div>`:'';
+  const srcLink=r.sourceUrl?`<a href="${r.sourceUrl}" style="font-size:12px;color:var(--color-text-secondary)" target="_blank"><i class="ti ti-external-link" style="font-size:11px" aria-hidden="true"></i> Source</a>`:'';
+  showOverlay(`<div class="fr" style="margin-bottom:10px"><div class="mt" style="margin:0">${r.name}</div><div class="sp"></div>${srcLink}<button class="sm" onclick="showRecipeForm(${i})"><i class="ti ti-edit" aria-hidden="true"></i></button><button class="sm danger" onclick="delRecipe(${i})"><i class="ti ti-trash" aria-hidden="true"></i></button></div>
+    ${labels?`<div class="fr wrap" style="gap:5px;margin-bottom:10px">${labels}</div>`:''}
+    ${r.time?`<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px"><i class="ti ti-clock" style="font-size:12px" aria-hidden="true"></i> ${r.time} min · ${r.servings||'?'} servings</div>`:''}
+    ${macH?`<div class="g5" style="margin-bottom:12px">${macH}</div>`:''}
+    <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:5px">Ingredients (${m.pct}% in pantry)</div>
+    ${ih}${mh}
+    ${r.notes?`<div style="margin-top:10px"><div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:4px">Instructions</div><div style="font-size:13px;line-height:1.7">${r.notes}</div></div>`:''}
+    <div class="fr" style="justify-content:flex-end;margin-top:14px"><button onclick="hideOverlay()">Close</button><button class="pri" onclick="addMiss(${i});hideOverlay();sw('shopping')"><i class="ti ti-shopping-cart" aria-hidden="true"></i> Add missing to cart</button></div>`);
+}
+function delRecipe(i){S.recipes.splice(i,1);save();hideOverlay();pFD();rTFB();rR()}
+function addMiss(i){mr(S.recipes[i]).missing.forEach(m=>{if(!S.shopping.find(s=>s.name.toLowerCase()===m.name.toLowerCase()))S.shopping.push({...m,checked:false,recipe:S.recipes[i].name})});save()}
+
+// ── IMPORT ────────────────────────────────────────────────────
+function showImport(){
+  showOverlay(`<div class="mt"><i class="ti ti-download" aria-hidden="true"></i> Import recipe</div>
+    <div class="itabs"><button class="itab on" id="it-txt" onclick="sIT('txt')"><i class="ti ti-clipboard" aria-hidden="true"></i> Paste text</button><button class="itab" id="it-pdf" onclick="sIT('pdf')"><i class="ti ti-file" aria-hidden="true"></i> Upload PDF</button><button class="itab" id="it-url" onclick="sIT('url')"><i class="ti ti-link" aria-hidden="true"></i> By URL</button></div>
+    <div id="ip-txt"><div class="hbox"><b>Best method:</b> open the recipe page, select all (Ctrl+A / Cmd+A), copy, and paste below.</div><label class="fl">Paste recipe text</label><textarea id="imp-txt" style="min-height:110px" placeholder="Paste the full recipe text here…"></textarea></div>
+    <div id="ip-pdf" style="display:none"><div class="hbox"><b>PDF upload:</b> text is extracted in your browser via PDF.js, then sent to AI. Works with text-based PDFs — scanned images won't work.</div><label class="fl">Choose PDF file</label><input type="file" id="imp-pdf" accept="application/pdf" style="font-size:13px;padding:6px 0;border:none;background:transparent;width:100%" onchange="document.getElementById('pdf-fname').textContent=this.files[0]?.name||''"><div id="pdf-fname" style="font-size:12px;color:var(--color-text-secondary);margin-top:3px"></div></div>
+    <div id="ip-url" style="display:none"><div class="hbox"><b>Note:</b> the app will try to recall the recipe from AI training data. Works best for AllRecipes, NYT Cooking, Serious Eats. For guaranteed results use Paste text.</div><label class="fl">Recipe URL</label><input type="url" id="imp-url" placeholder="https://www.allrecipes.com/recipe/…"></div>
+    <div id="imp-st"></div>
+    <div class="fr" style="justify-content:flex-end;margin-top:11px"><button onclick="hideOverlay()">Cancel</button><button class="pri" onclick="runImport()"><i class="ti ti-wand" aria-hidden="true"></i> Import ↗</button></div>`);
+}
+function sIT(t){['txt','pdf','url'].forEach(x=>{document.getElementById('it-'+x).classList.toggle('on',x===t);document.getElementById('ip-'+x).style.display=x===t?'block':'none'})}
+
+async function runImport(){
+  const st=document.getElementById('imp-st');
+  const at=['txt','pdf','url'].find(t=>document.getElementById('it-'+t).classList.contains('on'));
+  let userText='',sourceUrl='';
+  try{
+    if(at==='txt'){
+      userText=document.getElementById('imp-txt').value.trim();
+      if(!userText){st.innerHTML='<div class="ist err">Paste some recipe text first.</div>';return}
+    } else if(at==='pdf'){
+      const file=document.getElementById('imp-pdf').files[0];
+      if(!file){st.innerHTML='<div class="ist err">Choose a PDF file first.</div>';return}
+      st.innerHTML='<div class="ail"><div class="dpulse"><span></span><span></span><span></span></div> Reading PDF…</div>';
+      userText=await extractPdfText(file);
+      sourceUrl=file.name;
+    } else {
+      const url=document.getElementById('imp-url').value.trim();
+      if(!url){st.innerHTML='<div class="ist err">Enter a URL.</div>';return}
+      userText='Extract the recipe at this URL using your training knowledge: '+url;
+      sourceUrl=url;
+    }
+    st.innerHTML='<div class="ail"><div class="dpulse"><span></span><span></span><span></span></div> Extracting recipe with AI…</div>';
+    const sys='Extract a recipe and return ONLY valid JSON with no markdown. Schema: '+SCHEMA+'. Cuisine options: '+CUISINES.join(', ')+'. DishType options: '+DISH_TYPES.join(', ')+'. Dietary options: '+DIETARY.join(', ')+'. Estimate macros if not stated. Return null for unknown fields.';
+    const prompt=at==='url'?userText:'Extract the recipe from this text:\n\n'+userText.slice(0,12000);
+    const text=await callAI([{role:'user',content:prompt}],sys);
+    let rec;
+    try{rec=parseJSON(text)}catch(e){st.innerHTML='<div class="ist err">Could not parse AI response. Try Paste text instead.</div>';return}
+    if(sourceUrl)rec.sourceUrl=sourceUrl;
+    S.recipes.push(rec);save();
+    st.innerHTML=`<div class="ist ok"><i class="ti ti-check" aria-hidden="true"></i> "${rec.name}" imported!</div>`;
+    setTimeout(()=>{hideOverlay();pFD();rTFB();rR()},1200);
+  }catch(e){st.innerHTML=`<div class="ist err"><i class="ti ti-alert-triangle" aria-hidden="true"></i> ${e.message}</div>`}
+}
+
+// ── AI GENERATE ───────────────────────────────────────────────
+function showAiGen(){
+  showOverlay(`<div class="mt"><i class="ti ti-wand" aria-hidden="true"></i> Generate recipe with AI</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><label class="fl">Describe what you want</label><textarea id="aip" style="min-height:80px" placeholder="e.g. A quick 20-min high-protein breakfast with eggs and spinach, serves 2."></textarea></div>
+      <div id="air"></div>
+      <div class="fr" style="justify-content:flex-end"><button onclick="hideOverlay()">Cancel</button><button class="pri" onclick="doAiGen()"><i class="ti ti-wand" aria-hidden="true"></i> Generate ↗</button></div>
+    </div>`);
+  setTimeout(()=>document.getElementById('aip')?.focus(),50);
+}
+async function doAiGen(){
+  const p=document.getElementById('aip').value.trim();if(!p)return;
+  const re=document.getElementById('air');
+  re.innerHTML='<div class="ail"><div class="dpulse"><span></span><span></span><span></span></div> Generating…</div>';
+  const pc=S.pantry.length?'\nPantry: '+S.pantry.map(x=>`${x.name} (${x.amount} ${x.unit})`).join(', '):'';
+  const sys='Return ONLY valid JSON, no markdown. Schema: '+SCHEMA+'. Include realistic macro estimates. Cuisine: '+CUISINES.join(', ')+'. DishType: '+DISH_TYPES.join(', ')+'.';
+  try{
+    const text=await callAI([{role:'user',content:'Create a recipe: "'+p+'"'+pc}],sys);
+    const rec=parseJSON(text);
+    S.recipes.push(rec);save();hideOverlay();pFD();rTFB();rR();
+  }catch(e){re.innerHTML=`<div class="ist err"><i class="ti ti-alert-triangle" aria-hidden="true"></i> ${e.message}</div>`}
+}
+
+// ── PLANNER ───────────────────────────────────────────────────
+function rW(){
+  document.getElementById('wg').innerHTML=DAYS.map(day=>`<div class="dc"><div class="dh">${day}</div>${MEALS.map(meal=>{const k=day+'-'+meal,a=S.plan[k];if(a){const rec=S.recipes.find(r=>r.name===a);const m=rec?mr(rec):null;const col=m?(m.pct>=100?'#3B6D11':m.pct>=70?'#BA7517':'#A32D2D'):'#888';return`<div class="ms filled" onclick="oSP('${day}','${meal}')"><div class="mll">${meal}</div><div class="mln">${a}</div>${m?`<div class="mlm" style="color:${col}">${m.pct}%</div>`:''}</div>`}return`<div class="ms" onclick="oSP('${day}','${meal}')"><div class="mll">${meal}</div><div style="font-size:9px;color:var(--color-text-secondary);margin-top:3px">+ Add</div></div>`;}).join('')}</div>`).join('');
+}
+function oSP(day,meal){
+  const k=day+'-'+meal,cur=S.plan[k]||'';
+  const rows=[{name:'— None —',ingredients:[]},...S.recipes].map(r=>{const m=r.ingredients?mr(r):{pct:0};const mb=r.ingredients?.length?`<span class="badge ${m.pct>=100?'bg':m.pct>=70?'ba':'br'}">${m.pct}%</span>`:'';const tb=r.time?`<span class="badge bgr" style="font-size:10px"><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> ${r.time}m</span>`:'';const sub=[r.cuisine,r.dishType].filter(Boolean).join(' · ');return`<div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:var(--border-radius-md);cursor:pointer;background:${cur===r.name?'var(--color-background-secondary)':'transparent'}" onmouseover="this.style.background='var(--color-background-secondary)'" onmouseout="this.style.background='${cur===r.name?'var(--color-background-secondary)':'transparent'}'" onclick="aS('${k}','${r.name==='— None —'?'':r.name}')"><div style="flex:1"><div style="font-size:13px">${r.name}</div>${sub?`<div style="font-size:11px;color:var(--color-text-secondary)">${sub}</div>`:''}</div>${tb}${mb}</div>`;}).join('');
+  showOverlay(`<div class="mt">${day} · ${meal}</div><div style="display:flex;flex-direction:column;gap:1px;max-height:420px;overflow-y:auto">${rows}</div>`);
+}
+function aS(k,n){if(n)S.plan[k]=n;else delete S.plan[k];save();hideOverlay();rW();renderPN()}
+function clrPlan(){inlineConfirm('planner-confirm','Clear the entire meal plan?',()=>{S.plan={};save();rW();renderPN()})}
+
+function calcPN(){
+  const tot={calories:0,protein:0,carbs:0,fat:0,fiber:0,sodium:0};
+  Object.values(S.plan).forEach(n=>{const r=S.recipes.find(x=>x.name===n);if(!r)return;NUT_KEYS.forEach(k=>{if(r[k])tot[k]+=parseFloat(r[k])||0})});
+  return tot;
+}
+function renderPN(){
+  const el=document.getElementById('plan-nutrition');const tot=calcPN();
+  if(!NUT_KEYS.some(k=>tot[k]>0)){el.innerHTML='';return}
+  const g=S.goals?.weekly||{},d=S.goals?.daily||{};
+  el.innerHTML=`<div class="card"><div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px">Weekly plan totals</div>${NUT_KEYS.map(k=>{if(!tot[k])return'';const wg=g[k]||(d[k]?parseFloat(d[k])*7:0);const over=wg&&tot[k]>wg;const bw=wg?Math.min(Math.round(tot[k]/wg*100),100):0;return`<div class="pbar-wrap"><div class="pbar-label">${NUT_LABELS[k]}</div><div class="pbar-track"><div class="pbar-fill" style="width:${bw}%;background:${over?'#A32D2D':NUT_COLORS[k]}"></div></div><div class="pbar-val ${over?'goal-over':''}">${Math.round(tot[k])} ${NUT_UNITS[k]}${wg?` / ${Math.round(wg)}`:''}${over?' ⚠':''}</div></div>`;}).filter(Boolean).join('')}</div>`;
+  renderGB();
+}
+async function aiPlan(){
+  if(!S.recipes.length)return;
+  const re=document.getElementById('ai-pr');
+  re.innerHTML='<div class="ail"><div class="dpulse"><span></span><span></span><span></span></div> Planning your week…</div>';
+  const pt=S.pantry.map(p=>`${p.name} (${p.amount} ${p.unit})`).join(', ')||'empty pantry';
+  const gl=S.goals?.daily||{};
+  const goalStr=Object.entries(gl).filter(([k,v])=>v).map(([k,v])=>`${NUT_LABELS[k]}: ${v}${NUT_UNITS[k]}`).join(', ');
+  const recs=S.recipes.map(r=>{const m=mr(r);return`"${r.name}" [${r.dishType||'any'}, ${r.time||'?'}min, ${r.calories||'?'}kcal, ${m.pct}% pantry match]`}).join('\n');
+  const prompt=`Plan a 7-day meal plan maximizing pantry use${goalStr?` and meeting daily goals (${goalStr})`:''}.\nPantry: ${pt}\nRecipes (use EXACT names):\n${recs}\nReturn ONLY valid JSON, no markdown. All 21 slots (Mon-Sun x Breakfast/Lunch/Dinner) plus "reasoning". Use "" for no match.\n{"Mon-Breakfast":"Name","Mon-Lunch":"","Mon-Dinner":"Name",...,"Sun-Dinner":"Name","reasoning":"one sentence"}`;
+  try{
+    const text=await callAI([{role:'user',content:prompt}]);
+    const plan=parseJSON(text);const rsn=plan.reasoning||'';delete plan.reasoning;
+    Object.entries(plan).forEach(([k,v])=>{if(v&&S.recipes.find(r=>r.name===v))S.plan[k]=v});
+    save();rW();renderPN();
+    re.innerHTML=rsn?`<div class="ar" style="font-size:12px;padding:8px 12px">${rsn}</div>`:'';
+    setTimeout(()=>{re.innerHTML=''},7000);
+  }catch(e){re.innerHTML=`<div class="ist err"><i class="ti ti-alert-triangle" aria-hidden="true"></i> ${e.message}</div>`}
+}
+function genShop(){
+  const all={};
+  Object.entries(S.plan).forEach(([k,n])=>{const r=S.recipes.find(x=>x.name===n);if(!r)return;mr(r).missing.forEach(m=>{const key=m.name.toLowerCase();if(!all[key])all[key]={name:m.name,amount:m.amount,unit:m.unit,recipes:[],checked:false};all[key].recipes.push(n)})});
+  S.shopping=Object.values(all);save();sw('shopping');
+}
+
+// ── SHOPPING ──────────────────────────────────────────────────
+function renderShop(){
+  const el=document.getElementById('shopping-list');if(!el)return;
+  if(!S.shopping.length){el.innerHTML='<div class="es"><i class="ti ti-shopping-cart" aria-hidden="true"></i>Generate a shopping list from your meal plan first.</div>';return}
+  const byR={};S.shopping.forEach(item=>{const k=(item.recipes||['Other'])[0];if(!byR[k])byR[k]=[];byR[k].push(item)});
+  el.innerHTML=Object.entries(byR).map(([rec,items])=>`<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:5px">${rec}</div>${items.map(item=>{const i=S.shopping.indexOf(item);return`<div class="si ${item.checked?'chk':''}"><input type="checkbox" ${item.checked?'checked':''} onchange="toggleShop(${i})"><span class="sn" style="flex:1;font-size:13px">${item.name}</span><span style="font-size:12px;color:var(--color-text-secondary)">${item.amount} ${item.unit}</span><button class="sm ghost danger" onclick="removeShop(${i})" style="padding:4px 7px"><i class="ti ti-x" aria-hidden="true"></i></button></div>`}).join('')}</div>`).join('');
+}
+function toggleShop(i){S.shopping[i].checked=!S.shopping[i].checked;save();renderShop()}
+function removeShop(i){S.shopping.splice(i,1);save();renderShop()}
+function clrShop(){inlineConfirm('shop-confirm','Clear the entire shopping list?',()=>{S.shopping=[];save();renderShop()})}
+function copyShop(){
+  const text=S.shopping.filter(s=>!s.checked).map(s=>`${s.name}: ${s.amount} ${s.unit}`).join('\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.querySelector('#tab-shopping button.sm:first-of-type');
+    if(btn){const o=btn.innerHTML;btn.innerHTML='<i class="ti ti-check" aria-hidden="true"></i> Copied!';setTimeout(()=>{btn.innerHTML=o},1500)}
+  }).catch(()=>{});
+}
+
+// ── GOALS ─────────────────────────────────────────────────────
+function loadGF(){
+  const d=S.goals?.daily||{},w=S.goals?.weekly||{};
+  [['cal','calories'],['protein','protein'],['carbs','carbs'],['fat','fat'],['fiber','fiber'],['sodium','sodium']].forEach(([f,k])=>{const de=document.getElementById('g-'+f),we=document.getElementById('g-w'+f);if(de)de.value=d[k]||'';if(we)we.value=w[k]||''});
+}
+function saveGoals(){
+  const daily={},weekly={};
+  [['cal','calories'],['protein','protein'],['carbs','carbs'],['fat','fat'],['fiber','fiber'],['sodium','sodium']].forEach(([f,k])=>{const dv=document.getElementById('g-'+f)?.value,wv=document.getElementById('g-w'+f)?.value;if(dv)daily[k]=parseFloat(dv);if(wv)weekly[k]=parseFloat(wv)});
+  S.goals={daily,weekly};save();renderGB();
+  const btn=document.querySelector('#tab-goals button.pri');
+  if(btn){const o=btn.innerHTML;btn.innerHTML='<i class="ti ti-check" aria-hidden="true"></i> Saved!';setTimeout(()=>{btn.innerHTML=o},1500)}
+}
+function renderGB(){
+  const el=document.getElementById('goal-bars');if(!el)return;
+  const tot=calcPN();
+  if(!NUT_KEYS.some(k=>tot[k]>0)){el.innerHTML='<div style="font-size:13px;color:var(--color-text-secondary)">Plan your week first to see progress here.</div>';return}
+  const d=S.goals?.daily||{},w=S.goals?.weekly||{};
+  if(!NUT_KEYS.some(k=>d[k]||w[k])){el.innerHTML='<div style="font-size:13px;color:var(--color-text-secondary)">Set goals above to see progress tracking.</div>';return}
+  el.innerHTML=NUT_KEYS.map(k=>{const wg=w[k]||(d[k]?d[k]*7:0);const val=Math.round(tot[k]);if(!wg&&!val)return'';const over=wg&&val>wg;const bw=wg?Math.min(Math.round(val/wg*100),100):0;return`<div class="pbar-wrap"><div class="pbar-label">${NUT_LABELS[k]}</div><div class="pbar-track"><div class="pbar-fill" style="width:${bw}%;background:${over?'#A32D2D':NUT_COLORS[k]}"></div></div><div class="pbar-val ${over?'goal-over':''}">${val}${wg?` / ${Math.round(wg)}`:''}${over?' ⚠':''}</div></div>`;}).filter(Boolean).join('');
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────
+function loadSettings(){
+  const stored=localStorage.getItem('pmp-api-key')||'';
+  const input=document.getElementById('api-key-input');
+  if(input) input.value=stored;
+  const status=document.getElementById('api-key-status');
+  if(status) status.textContent=stored?'Key saved in browser storage.':HARDCODED_KEY!=='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'?'Using hardcoded key from file.':'No key set.';
+  if(getApiKey()) document.getElementById('api-banner').classList.add('hidden');
+}
+function saveApiKey(){
+  const val=document.getElementById('api-key-input').value.trim();
+  if(val){localStorage.setItem('pmp-api-key',val);document.getElementById('api-key-status').textContent='Key saved.';document.getElementById('api-banner').classList.add('hidden')}
+  else{localStorage.removeItem('pmp-api-key');document.getElementById('api-key-status').textContent='Key cleared.'}
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='meal-planner-data.json';a.click();
+}
+function importData(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      S={...S,...data};save();
+      renderPantry();pFD();rTFB();rR();
+      alert('Data imported successfully!');
+    }catch(err){alert('Could not parse file: '+err.message)}
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+function clrAllData(){
+  inlineConfirm('data-confirm','This will delete ALL your pantry, recipes, meal plan, and goals. Are you sure?',()=>{
+    S={pantry:[],recipes:[],plan:{},shopping:[],goals:{daily:{},weekly:{}}};
+    save();renderPantry();pFD();rTFB();rR();
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+renderPantry();updateStats();
+if(getApiKey()) document.getElementById('api-banner').classList.add('hidden');
+</script>
+</body></html>
