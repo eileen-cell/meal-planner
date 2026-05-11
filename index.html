@@ -1095,9 +1095,8 @@ function genShop(){
         }
 
         if(vp.amount===Infinity){
-          // Non-numeric pantry amount — treat as one-time coverage, then deplete
-          vp.amount=0;
-          return; // covered this use
+          // No amount specified — treat as unlimited, never depletes
+          return; // always covered
         }
 
         if(isNaN(reqQty)||vp.unit!==((ing.unit||'').toLowerCase())){
