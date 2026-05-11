@@ -501,6 +501,23 @@ function mr(r){
   // Check if a prepared item covers this whole recipe
   const prepItem=S.pantry.find(p=>p.type==='prepared'&&p.recipeName===r.name&&(parseInt(p.servingsLeft)||0)>0);
   if(prepItem)return{pct:100,missing:[],have:r.ingredients.slice(),preparedBy:prepItem};
+  // Check if a pantry ingredient covers the whole recipe by name match
+  // (e.g. pantry has "green beans", recipe is named "Green Beans" or "Steamed Green Beans")
+  const normRecipeName=normIngredient(r.name);
+  const pantryNameMatch=S.pantry.find(p=>{
+    if(p.type==='prepared')return false;
+    const normP=normIngredient(p.name);
+    return normP===normRecipeName||normRecipeName.includes(normP)||normP.includes(normRecipeName);
+  });
+  if(pantryNameMatch){
+    // Only apply this shortcut for simple recipes (side dishes or recipes whose
+    // name IS an ingredient — avoid matching e.g. "Chicken Stir Fry" to "chicken")
+    const isSideDish=r.dishType==='Side dish';
+    const isSimple=!r.ingredients||r.ingredients.length<=3;
+    if(isSideDish||isSimple){
+      return{pct:100,missing:[],have:r.ingredients?.slice()||[],pantryNameMatch};
+    }
+  }
   const miss=[],have=[];
   r.ingredients.forEach(ri=>{
     const normRi=normIngredient(ri.name);
@@ -621,10 +638,69 @@ function renderPantry(){
     if(ingredients.length)html+='<div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:5px;margin-top:10px">Ingredients</div>';
   }
   if(ingredients.length){
-    html+=ingredients.map(({g,i})=>`<div class="ii"><span style="flex:1;font-size:13px">${g.name}</span>${(g.amount||g.unit)?`<span style="font-size:12px;color:var(--color-text-secondary)">${[g.amount,g.unit].filter(Boolean).join(' ')}</span>`:''}<button class="sm ghost" onclick="oai(${i})"><i class="ti ti-edit" aria-hidden="true"></i></button><button class="sm ghost danger" onclick="delPantry(${i})"><i class="ti ti-trash" aria-hidden="true"></i></button></div>`).join('');
+    html+=ingredients.map(({g,i})=>{
+      const alreadyRecipe=S.recipes.some(r=>normIngredient(r.name)===normIngredient(g.name));
+      const sideBtn=alreadyRecipe?''
+        :`<button class="sm ghost" onclick="quickAddSideDish('${g.name.replace(/'/g,"\'")}',${i})" title="Create as side dish recipe" style="font-size:11px;color:var(--color-text-secondary)"><i class="ti ti-chef-hat" aria-hidden="true"></i></button>`;
+      return`<div class="ii">
+        <span style="flex:1;font-size:13px">${g.name}</span>
+        ${(g.amount||g.unit)?`<span style="font-size:12px;color:var(--color-text-secondary)">${[g.amount,g.unit].filter(Boolean).join(' ')}</span>`:''}
+        ${sideBtn}
+        <button class="sm ghost" onclick="oai(${i})"><i class="ti ti-edit" aria-hidden="true"></i></button>
+        <button class="sm ghost danger" onclick="delPantry(${i})"><i class="ti ti-trash" aria-hidden="true"></i></button>
+      </div>`;
+    }).join('');
   }
   el.innerHTML=html;
   updateStats();
+}
+
+function quickAddSideDish(name, pantryIdx){
+  // Create a minimal side dish recipe from a pantry item and confirm with the user
+  showOverlay(`<div class="mt"><i class="ti ti-chef-hat" aria-hidden="true"></i> Create side dish recipe</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="hbox">This will create a simple side dish recipe named <b>${name}</b>. You can edit it later to add ingredients, cook time, or nutrition info.</div>
+      <div><label class="fl">Recipe name</label><input type="text" id="qsd-name" value="${name}"></div>
+      <div><label class="fl">Servings</label><input type="number" id="qsd-servings" value="4" min="1" style="max-width:100px"></div>
+      <div><label class="fl">Cook time (min, optional)</label><input type="number" id="qsd-time" placeholder="e.g. 10" min="1" style="max-width:100px"></div>
+      <div id="qsd-status"></div>
+      <div class="fr" style="justify-content:flex-end">
+        <button onclick="hideOverlay()">Cancel</button>
+        <button class="pri" onclick="saveQuickSideDish('${name.replace(/'/g,"\'")}')"><i class="ti ti-plus" aria-hidden="true"></i> Create recipe</button>
+      </div>
+    </div>`);
+  setTimeout(()=>document.getElementById('qsd-name')?.focus(),50);
+}
+
+function saveQuickSideDish(originalName){
+  const name=document.getElementById('qsd-name').value.trim();
+  const servings=document.getElementById('qsd-servings').value||'4';
+  const time=document.getElementById('qsd-time').value||'';
+  if(!name){document.getElementById('qsd-status').innerHTML='<div class="ist err">Enter a name.</div>';return;}
+  if(S.recipes.some(r=>r.name.toLowerCase()===name.toLowerCase())){
+    document.getElementById('qsd-status').innerHTML='<div class="ist err">A recipe with this name already exists.</div>';
+    return;
+  }
+  S.recipes.push({
+    name,
+    servings,
+    time,
+    dishType:'Side dish',
+    dietary:[],
+    ingredients:[{name:originalName,amount:'',unit:''}],
+    notes:'',
+    calories:'',protein:'',carbs:'',fat:'',fiber:'',sodium:'',
+    cuisine:'',sourceUrl:''
+  });
+  save();
+  hideOverlay();
+  renderPantry(); // refresh so button disappears for this item
+  // Show confirmation flash
+  const flash=document.createElement('div');
+  flash.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#EAF3DE;color:#3B6D11;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;border:0.5px solid #3B6D11;white-space:nowrap';
+  flash.innerHTML='<i class="ti ti-check"></i> "'+name+'" added as a side dish recipe';
+  document.body.appendChild(flash);
+  setTimeout(()=>flash.remove(),2500);
 }
 
 function adjustServings(i, delta){
@@ -1172,6 +1248,14 @@ function genShop(){
       const r=S.recipes.find(x=>x.name===n);if(!r)return;
       const match=mr(r);
       if(match.preparedBy)return; // covered by prepared item, skip
+      if(match.pantryNameMatch){
+        // Covered by pantry ingredient name match — deplete that pantry item virtually
+        const key=normIngredient(match.pantryNameMatch.name);
+        if(virtualPantry[key]&&virtualPantry[key].amount!==Infinity&&virtualPantry[key].amount>0){
+          virtualPantry[key].amount=Math.max(0,virtualPantry[key].amount-1);
+        }
+        return;
+      }
 
       // For each ingredient in this recipe, check virtual pantry
       (r.ingredients||[]).forEach(ing=>{
