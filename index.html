@@ -1099,23 +1099,72 @@ function genShop(){
           return; // always covered
         }
 
-        if(isNaN(reqQty)||vp.unit!==((ing.unit||'').toLowerCase())){
-          // Can't do numeric comparison (different units or no amount) — if any remains, use it
-          if(vp.amount>0){
-            vp.amount=0; // consume whatever was there
-            return;
-          }
+        // Unit conversion table to normalise to grams/ml where possible
+        const TO_G={g:1,kg:1000,oz:28.35,lb:453.59};
+        const TO_ML={ml:1,l:1000,'fl oz':29.57,cup:240,tbsp:14.79,tsp:4.93};
+
+        function toBase(qty,unit){
+          const u=(unit||'').toLowerCase().trim();
+          if(TO_G[u]!==undefined)return{val:qty*TO_G[u],system:'g'};
+          if(TO_ML[u]!==undefined)return{val:qty*TO_ML[u],system:'ml'};
+          return null;
+        }
+        function fromBase(val,unit){
+          const u=(unit||'').toLowerCase().trim();
+          if(TO_G[u]!==undefined)return Math.round((val/TO_G[u])*100)/100;
+          if(TO_ML[u]!==undefined)return Math.round((val/TO_ML[u])*100)/100;
+          return Math.round(val*100)/100;
+        }
+
+        const ingUnit=(ing.unit||'').toLowerCase().trim();
+        const vpUnit=vp.unit;
+
+        if(isNaN(reqQty)){
+          // Recipe has no numeric amount — if any pantry stock remains, consume one use
+          if(vp.amount>0&&vp.amount!==Infinity){vp.amount=0;return;}
+          if(vp.amount===Infinity)return; // unlimited
           addToShopList(ing,n);
           return;
         }
 
-        if(vp.amount>=reqQty){
-          vp.amount-=reqQty; // deduct from virtual pantry
+        // Try unit conversion if units differ
+        let reqNorm=reqQty, vpNorm=vp.amount, useUnit=ingUnit, sameSystem=false;
+        if(ingUnit!==vpUnit){
+          const ri=toBase(reqQty,ingUnit);
+          const vi=toBase(vp.amount,vpUnit);
+          if(ri&&vi&&ri.system===vi.system){
+            reqNorm=ri.val; vpNorm=vi.val; useUnit=ingUnit; sameSystem=true;
+          }
         } else {
-          // Partially or fully depleted — need to buy the shortfall
-          const shortfall=reqQty-vp.amount;
+          sameSystem=true;
+        }
+
+        if(!sameSystem){
+          // Incompatible units — if any stock remains treat as covered, otherwise add full amount
+          if(vp.amount>0){vp.amount=0;return;}
+          addToShopList(ing,n);
+          return;
+        }
+
+        if(vpNorm>=reqNorm){
+          // Enough in pantry — deduct (convert back to original pantry unit if needed)
+          if(ingUnit!==vpUnit){
+            const ri=toBase(reqQty,ingUnit);
+            const deductInVpUnit=ri?ri.val/TO_G[vpUnit]||ri.val/TO_ML[vpUnit]:0;
+            vp.amount=Math.max(0,vp.amount-fromBase(ri?ri.val:reqQty,vpUnit));
+          } else {
+            vp.amount=Math.max(0,vp.amount-reqQty);
+          }
+        } else {
+          // Shortfall — calculate how much more is needed in the recipe's unit
+          const shortfallBase=reqNorm-vpNorm;
           vp.amount=0;
-          addToShopList({...ing, amount:String(Math.round(shortfall*100)/100)}, n);
+          const shortfallInIngUnit=sameSystem&&ingUnit!==vpUnit
+            ?fromBase(shortfallBase,ingUnit)
+            :Math.round(shortfallBase*100)/100;
+          if(shortfallInIngUnit>0){
+            addToShopList({...ing, amount:String(shortfallInIngUnit)}, n);
+          }
         }
       });
     });
