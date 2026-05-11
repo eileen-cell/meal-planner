@@ -1267,10 +1267,13 @@ function genShop(){
 
   function addToShopList(ing, recipeName){
     const cleanName=stripPrepInstructions(ing.name)||ing.name;
-    const key=cleanName.toLowerCase().trim();
+    // Use fully-normalized form as dedup key so "large eggs" and "eggs" merge
+    const key=normIngredient(ing.name)||cleanName.toLowerCase().trim();
     if(!key)return;
     if(!all[key]){
-      all[key]={name:cleanName,amount:ing.amount,unit:ing.unit,recipes:[],checked:false};
+      // Display name: use the shorter/cleaner of the two (stripped but not normalized)
+      const displayName=cleanName.replace(new RegExp(DESCRIPTORS.source,'gi'),'').replace(/\s+/g,' ').trim()||cleanName;
+      all[key]={name:displayName||cleanName,amount:ing.amount,unit:ing.unit,recipes:[],checked:false};
     } else {
       // Try to sum amounts if numeric and same unit
       const existingQty=parseFloat(all[key].amount);
