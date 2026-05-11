@@ -1130,20 +1130,21 @@ function genShop(){
         // Try unit conversion if units differ
         let reqNorm=reqQty, vpNorm=vp.amount, useUnit=ingUnit, sameSystem=false;
         if(ingUnit!==vpUnit){
-          const ri=toBase(reqQty,ingUnit);
-          const vi=toBase(vp.amount,vpUnit);
-          if(ri&&vi&&ri.system===vi.system){
-            reqNorm=ri.val; vpNorm=vi.val; useUnit=ingUnit; sameSystem=true;
+          // One or both units missing — treat amounts as equivalent (user's intent)
+          if(!ingUnit||!vpUnit){
+            sameSystem=true; // fall through to numeric comparison below
+          } else {
+            const ri=toBase(reqQty,ingUnit);
+            const vi=toBase(vp.amount,vpUnit);
+            if(ri&&vi&&ri.system===vi.system){
+              reqNorm=ri.val; vpNorm=vi.val; useUnit=ingUnit; sameSystem=true;
+            }
+            // Incompatible known units (e.g. g vs ml) — still treat as equivalent
+            // since the user may use inconsistent labelling for the same ingredient
+            if(!sameSystem){ sameSystem=true; }
           }
         } else {
           sameSystem=true;
-        }
-
-        if(!sameSystem){
-          // Incompatible units — if any stock remains treat as covered, otherwise add full amount
-          if(vp.amount>0){vp.amount=0;return;}
-          addToShopList(ing,n);
-          return;
         }
 
         if(vpNorm>=reqNorm){
