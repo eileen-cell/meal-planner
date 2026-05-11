@@ -1195,16 +1195,58 @@ async function aiPlan(){
   try{
     const text=await callAI([{role:'user',content:prompt}]);
     const plan=parseJSON(text);const rsn=plan.reasoning||'';delete plan.reasoning;
-    Object.entries(plan).forEach(([k,v])=>{
-      if(!v)return;
-      const names=Array.isArray(v)?v:[v];
-      const valid=names.filter(n=>S.recipes.find(r=>r.name===n));
-      if(!valid.length)return;
-      // Post-process: if slot only contains side dishes, remove them
-      // (AI should not do this, but guard against it)
-      const nonSides=valid.filter(n=>{const r=S.recipes.find(x=>x.name===n);return!r||r.dishType!=='Side dish';});
-      if(nonSides.length===0)return; // all sides, skip slot
-      S.plan[k]=valid; // keep sides if they're alongside mains
+
+    // Helper: pick the best fallback recipe for a slot when AI left it empty/invalid
+    // Prefer recipes not already used today, then least-used overall, then highest pantry match
+    function pickFallback(slotKey, alreadyAssigned){
+      const mealType=slotKey.split('-').slice(1).join('-'); // Breakfast/Lunch/Dinner
+      const used=new Set(alreadyAssigned);
+      const nonSideRecipes=S.recipes.filter(r=>r.dishType!=='Side dish');
+      if(!nonSideRecipes.length)return S.recipes[0]?.name||null;
+      // Score: prefer matching meal type, then highest pantry %, then least used
+      const usageCount={};
+      Object.values(S.plan).forEach(slot=>{
+        const names=Array.isArray(slot)?slot:[slot];
+        names.forEach(n=>{usageCount[n]=(usageCount[n]||0)+1;});
+      });
+      const scored=nonSideRecipes.map(r=>{
+        const m=mr(r);
+        const typeMatch=r.dishType&&r.dishType.toLowerCase()===mealType.toLowerCase()?10:0;
+        const notUsed=used.has(r.name)?0:5;
+        const pantryPct=m.pct/10;
+        const useCount=usageCount[r.name]||0;
+        return{name:r.name,score:typeMatch+notUsed+pantryPct-useCount};
+      });
+      scored.sort((a,b)=>b.score-a.score);
+      return scored[0]?.name||null;
+    }
+
+    // Build list of all 21 expected keys
+    const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const MEALS=['Breakfast','Lunch','Dinner'];
+    const allSlotKeys=DAYS.flatMap(d=>MEALS.map(m=>d+'-'+m));
+
+    // Track assigned names per day to help fallback variety
+    const assignedNames=[];
+
+    allSlotKeys.forEach(k=>{
+      const v=plan[k];
+      let names=[];
+      if(v){
+        names=Array.isArray(v)?v:[v];
+        names=names.filter(n=>S.recipes.find(r=>r.name===n)); // drop hallucinated names
+      }
+      // Filter out side-dish-only slots
+      const nonSides=names.filter(n=>{const r=S.recipes.find(x=>x.name===n);return!r||r.dishType!=='Side dish';});
+      if(nonSides.length===0){
+        // Empty or side-only — pick a fallback main
+        const fallback=pickFallback(k, assignedNames);
+        if(fallback)names=[fallback,...names.filter(n=>{const r=S.recipes.find(x=>x.name===n);return r&&r.dishType==='Side dish';})];
+      }
+      if(names.length){
+        S.plan[k]=names;
+        names.forEach(n=>assignedNames.push(n));
+      }
     });
     save();rW();renderPN();
     re.innerHTML=rsn?`<div class="ar" style="font-size:12px;padding:8px 12px">${rsn}</div>`:'';
