@@ -949,12 +949,18 @@ function oSP(day,meal){
     :'';
 
   // Build add-recipe list (exclude already assigned)
+  // Check if current slot already has a non-side-dish main
+  const currentHasMain=current.some(n=>{const r=S.recipes.find(x=>x.name===n);return r&&r.dishType!=='Side dish';});
   const rows=S.recipes.filter(r=>!current.includes(r.name)).map(r=>{
     const m=r.ingredients?mr(r):{pct:0};
     const mb=r.ingredients?.length?`<span class="badge ${m.pct>=100?'bg':m.pct>=70?'ba':'br'}">${m.pct}%</span>`:'';
     const tb=r.time?`<span class="badge bgr" style="font-size:10px"><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> ${r.time}m</span>`:'';
     const sub=[r.cuisine,r.dishType].filter(Boolean).join(' · ');
-    return`<div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:var(--border-radius-md);cursor:pointer" onmouseover="this.style.background='var(--color-background-secondary)'" onmouseout="this.style.background='transparent'" onclick="addPlanItem('${k}','${r.name.replace(/'/g,"\\'")}')"><div style="flex:1"><div style="font-size:13px">${r.name}</div>${sub?`<div style="font-size:11px;color:var(--color-text-secondary)">${sub}</div>`:''}</div>${tb}${mb}</div>`;
+    const isSide=r.dishType==='Side dish';
+    const sideWarning=isSide&&!currentHasMain?`<span class="badge ba" style="font-size:10px">needs a main first</span>`:'';
+    const clickable=!isSide||currentHasMain;
+    return`<div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:var(--border-radius-md);cursor:${clickable?'pointer':'not-allowed'};opacity:${clickable?1:0.5}" ${clickable?`onmouseover="this.style.background='var(--color-background-secondary)'" onmouseout="this.style.background='transparent'" onclick="addPlanItem('${k}','${r.name.replace(/'/g,"\'")}')"`:''}>
+      <div style="flex:1"><div style="font-size:13px">${r.name}</div>${sub?`<div style="font-size:11px;color:var(--color-text-secondary)">${sub}</div>`:''}</div>${sideWarning}${tb}${mb}</div>`;
   }).join('');
 
   const emptyMsg=S.recipes.length===0?'<div style="font-size:13px;color:var(--color-text-secondary);padding:8px">No recipes yet — add some in the Recipes tab.</div>'
@@ -1025,8 +1031,11 @@ async function aiPlan(){
   ].join(', ')||'empty pantry';
   const gl=S.goals?.daily||{};
   const goalStr=Object.entries(gl).filter(([k,v])=>v).map(([k,v])=>`${NUT_LABELS[k]}: ${v}${NUT_UNITS[k]}`).join(', ');
+  // Separate side dishes from mains so the AI knows which is which
+  const sideDishes=S.recipes.filter(r=>r.dishType==='Side dish').map(r=>r.name);
   const recs=S.recipes.map(r=>{const m=mr(r);return`"${r.name}" [${r.dishType||'any'}, ${r.time||'?'}min, ${r.calories||'?'}kcal, ${m.pct}% pantry match]`}).join('\n');
-  const prompt=`Plan a 7-day meal plan maximizing pantry use${goalStr?` and meeting daily goals (${goalStr})`:''}.\nPantry: ${pt}\nRecipes (use EXACT names):\n${recs}\nReturn ONLY valid JSON, no markdown. All 21 slots (Mon-Sun x Breakfast/Lunch/Dinner) plus "reasoning". Use "" for no match.\n{"Mon-Breakfast":"Name","Mon-Lunch":"","Mon-Dinner":"Name",...,"Sun-Dinner":"Name","reasoning":"one sentence"}`;
+  const sideNote=sideDishes.length?`\nIMPORTANT: These are side dishes and must NEVER be the only item in a slot: ${sideDishes.map(n=>'"'+n+'"').join(', ')}. A side dish may only appear alongside a main dish in the same slot.`:'';
+  const prompt=`Plan a 7-day meal plan maximizing pantry use${goalStr?` and meeting daily goals (${goalStr})`:''}.\nPantry: ${pt}\nRecipes (use EXACT names):\n${recs}${sideNote}\nRULES:\n1. ALL 21 slots must be filled — every day must have Breakfast, Lunch, and Dinner assigned.\n2. Even if pantry coverage is low or ingredients are missing, still assign the best available recipe. Never leave a slot empty.\n3. A slot may contain multiple recipes (e.g. a main + a side dish) by returning an array: ["Main","Side"].\n4. Never assign ONLY a side dish to a slot.\nReturn ONLY valid JSON, no markdown. All 21 slots plus "reasoning".\n{"Mon-Breakfast":"Name","Mon-Lunch":["Main","Side"],"Mon-Dinner":"Name",...,"Sun-Dinner":"Name","reasoning":"one sentence"}`;
   try{
     const text=await callAI([{role:'user',content:prompt}]);
     const plan=parseJSON(text);const rsn=plan.reasoning||'';delete plan.reasoning;
@@ -1034,7 +1043,12 @@ async function aiPlan(){
       if(!v)return;
       const names=Array.isArray(v)?v:[v];
       const valid=names.filter(n=>S.recipes.find(r=>r.name===n));
-      if(valid.length)S.plan[k]=valid;
+      if(!valid.length)return;
+      // Post-process: if slot only contains side dishes, remove them
+      // (AI should not do this, but guard against it)
+      const nonSides=valid.filter(n=>{const r=S.recipes.find(x=>x.name===n);return!r||r.dishType!=='Side dish';});
+      if(nonSides.length===0)return; // all sides, skip slot
+      S.plan[k]=valid; // keep sides if they're alongside mains
     });
     save();rW();renderPN();
     re.innerHTML=rsn?`<div class="ar" style="font-size:12px;padding:8px 12px">${rsn}</div>`:'';
