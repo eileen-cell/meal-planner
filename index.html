@@ -407,8 +407,88 @@ function stripPrepInstructions(name){
   return s;
 }
 
+function singularize(word){
+  // Common irregular plurals
+  const irreg={cloves:'clove',potatoes:'potato',tomatoes:'tomato',avocados:'avocado',
+    mangoes:'mango',heroes:'hero',loaves:'loaf',halves:'half',leaves:'leaf',
+    knives:'knife',lives:'life',shelves:'shelf',wolves:'wolf',selves:'self',
+    oxen:'ox',children:'child',geese:'goose',feet:'foot',teeth:'tooth',
+    mice:'mouse',lice:'louse',cacti:'cactus',fungi:'fungus',nuclei:'nucleus',
+    foci:'focus',stimuli:'stimulus',alumni:'alumnus',syllabi:'syllabus'};
+  if(irreg[word])return irreg[word];
+  // Unchanged plurals (already singular or uncountable)
+  const unchanged=['fish','rice','flour','milk','water','oil','salt','pepper',
+    'sugar','honey','bread','cheese','butter','cream','meat','beef','pork',
+    'lamb','garlic','ginger','spinach','lettuce','broccoli','cauliflower',
+    'celery','asparagus','watercress','oatmeal','pasta','quinoa','couscous'];
+  if(unchanged.includes(word))return word;
+  // Rules (most specific first)
+  if(word.endsWith('sses')||word.endsWith('shes')||word.endsWith('ches')||word.endsWith('xes')||word.endsWith('zes'))
+    return word.slice(0,-2); // glasses->glass, dishes->dish
+  if(word.endsWith('ies')&&word.length>4)return word.slice(0,-3)+'y'; // berries->berry
+  if(word.endsWith('ves')&&word.length>4)return word.slice(0,-3)+'f'; // halves->half (fallback)
+  if(word.endsWith('s')&&!word.endsWith('ss')&&!word.endsWith('us')&&word.length>3)
+    return word.slice(0,-1); // onions->onion, carrots->carrot
+  return word;
+}
+
+// Ingredient name aliases — maps common variants to a canonical form
+const INGREDIENT_ALIASES={
+  'table salt':'salt',
+  'sea salt':'salt',
+  'kosher salt':'salt',
+  'coarse salt':'salt',
+  'fine salt':'salt',
+  'rock salt':'salt',
+  'iodized salt':'salt',
+  'black pepper':'pepper',
+  'white pepper':'pepper',
+  'ground pepper':'pepper',
+  'lean ground beef':'ground beef',
+  'extra lean ground beef':'ground beef',
+  'lean ground turkey':'ground turkey',
+  'lean ground pork':'ground pork',
+  'white rice':'rice',
+  'brown rice':'rice',
+  'jasmine rice':'rice',
+  'basmati rice':'rice',
+  'long grain rice':'rice',
+  'short grain rice':'rice',
+  'minute rice':'rice',
+  'instant rice':'rice',
+  'garlic clove':'garlic',
+  'garlic cloves':'garlic',
+  'garlic bulb':'garlic',
+  'garlic bulbs':'garlic',
+  'garlic head':'garlic',
+  'garlic heads':'garlic',
+  'minced garlic':'garlic',
+  'crushed garlic':'garlic',
+  'garlic powder':'garlic',
+  'roasted garlic':'garlic',
+  'fresh garlic':'garlic',
+  'granulated garlic':'garlic',
+  'scallion':'green onion',
+  'scallions':'green onion',
+  'spring onion':'green onion',
+  'spring onions':'green onion',
+  'coriander':'cilantro',
+  'aubergine':'eggplant',
+  'courgette':'zucchini',
+  'capsicum':'bell pepper',
+  'prawns':'shrimp',
+};
+
 function normIngredient(name){
-  return stripPrepInstructions(name).toLowerCase().replace(DESCRIPTORS,'').replace(/\s+/g,' ').trim();
+  const stripped=stripPrepInstructions(name).toLowerCase().replace(DESCRIPTORS,'').replace(/\s+/g,' ').trim();
+  // Check aliases first (before singularizing)
+  if(INGREDIENT_ALIASES[stripped])return INGREDIENT_ALIASES[stripped];
+  // Singularize the last word (the noun) only
+  const words=stripped.split(' ');
+  if(words.length>0)words[words.length-1]=singularize(words[words.length-1]);
+  const result=words.join(' ').trim();
+  // Check aliases again after singularizing
+  return INGREDIENT_ALIASES[result]||result;
 }
 // ── MATCH RECIPE ─────────────────────────────────────────────
 // A prepared pantry item (type==='prepared') satisfies its source recipe entirely
